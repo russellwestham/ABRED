@@ -28,10 +28,11 @@ async def read_user(user_id: int):
     return user
 
 @app.post("/user")
-async def create_user(name: str, age: int):
+async def create_user(name: str, age: int, email: str):
     user = UserTable()
     user.name = name
     user.age = age
+    user.email = email
     session.add(user)
     session.commit()
 
@@ -42,4 +43,5 @@ async def update_users(users: List[User]):
             filter(UserTable.id == new_user.id).first()
         user.name = new_user.name
         user.age = new_user.age
+        user.email = new_user.email
         session.commit()

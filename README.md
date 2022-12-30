@@ -23,6 +23,8 @@ $ make up
 ```
 
 ## DB migration  
+befor migration, fix fastapi code
+
 ```
 # access fastapi docker
 $ docker exec -it fastapi /bin/bash
@@ -31,7 +33,12 @@ $ docker exec -it fastapi /bin/bash
 # move to src directory
 > cd ..
 
+# generate revision file
+> alembic revision -m "message"
+
+# change revision file in /migration/versions
+
 # run migration
 > alembic upgrade head
 
-``` 
+```

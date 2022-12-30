@@ -37,6 +37,8 @@ services:
       - "8000:8000"
     networks:
       - local-net
+    volumes:
+      - ./migration:/usr/src/migration
 
 networks:
   local-net:

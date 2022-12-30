@@ -11,12 +11,14 @@ class UserTable(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(30), nullable=False)
     age = Column(Integer)
+    email = Column(String(50), nullable=False)
 
 
 class User(BaseModel):
     id: int
     name: str
     age: int
+    email: str
 
 
 def main():
