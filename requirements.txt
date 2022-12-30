@@ -1,0 +1,7 @@
+mysqlclient
+pymysql
+sqlalchemy
+uvicorn
+fastapi
+alembic
+cryptography

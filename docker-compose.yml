@@ -1,0 +1,43 @@
+version: "3.3"
+
+
+x-base_opt: &base_opt
+  restart: always
+  environment:
+    MYSQL_DATABASE: ${MYSQL_DATABASE}
+    MYSQL_USER: ${MYSQL_USER}
+    MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    MYSQL_HOST: ${MYSQL_HOST}
+
+services:
+  # MySQL
+  db:
+    << : *base_opt
+    container_name: "db"
+    image: mysql:8.0
+    tty: true
+    ports:
+      - "3306:3306"
+    networks:
+      - local-net
+    volumes:
+      - ./.data/mysql:/var/lib/mysql
+
+  # FastAPI
+  fastapi:
+    << : *base_opt
+    container_name: "fastapi"
+    build: .
+    command: "./wait-for-it.sh db:3306 -t 10 -- uvicorn main:app --reload --host 0.0.0.0 --port 8000"
+    entrypoint: []
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    networks:
+      - local-net
+
+networks:
+  local-net:
+    driver: bridge
