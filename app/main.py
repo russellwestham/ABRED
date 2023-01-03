@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from typing import List
 from starlette.middleware.cors import CORSMiddleware
 from db import session 
-from model import UserTable, User
+from model import UserTable, User, TargetItem, TargetItemTable
 
 app = FastAPI()
 
@@ -45,3 +45,16 @@ async def update_users(users: List[User]):
         user.age = new_user.age
         user.email = new_user.email
         session.commit()
+
+@app.get("/target_items")
+async def read_target_items():
+    users = session.query(TargetItemTable).all()
+    return users
+    
+@app.post("/target_item")
+async def create_target_item(name: str, keywords: str):
+    target_item = TargetItemTable()
+    target_item.name = name
+    target_item.keywords = keywords
+    session.add(target_item)
+    session.commit()

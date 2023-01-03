@@ -13,13 +13,23 @@ class UserTable(Base):
     age = Column(Integer)
     email = Column(String(50), nullable=False)
 
-
 class User(BaseModel):
     id: int
     name: str
     age: int
     email: str
 
+
+class TargetItemTable(Base):
+    __tablename__ = 'target_item'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(30), nullable=False)
+    keywords = Column(String(100), nullable=False)
+
+class TargetItem(BaseModel):
+    id: int
+    name: str
+    keywords: str
 
 def main():
     Base.metadata.create_all(bind=ENGINE)
