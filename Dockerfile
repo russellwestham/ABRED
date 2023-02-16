@@ -14,3 +14,7 @@ COPY alembic.ini /usr/src
 USER daemon
 # 이 디렉토리로 이동
 WORKDIR /usr/src/app
+
+RUN /bin/sh -c python -m nltk.downloader stopwords
+RUN /bin/sh -c python -m nltk.downloader punkt
+RUN /bin/sh -c python -m nltk.downloader averaged_perceptron_tagger

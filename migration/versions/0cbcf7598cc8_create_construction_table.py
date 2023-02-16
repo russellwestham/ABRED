@@ -21,10 +21,10 @@ def upgrade() -> None:
         'News',
         sa.Column('id', sa.Integer, nullable=False, index=True),
         sa.Column('const_id', sa.Integer, nullable=False, index=True),
-        sa.Column('thumnl_url', sa.String(length=50), nullable=False),
-        sa.Column('url', sa.String(length=50), nullable=False),
-        sa.Column('title', sa.String(length=50), nullable=False),
-        sa.Column('description', sa.String(length=50), nullable=False),
+        sa.Column('thumnl_url', sa.String(length=100), nullable=False),
+        sa.Column('url', sa.String(length=100), nullable=False),
+        sa.Column('title', sa.String(length=100), nullable=False),
+        sa.Column('description', sa.String(length=500), nullable=False),
         sa.PrimaryKeyConstraint('id'),
         sa.ForeignKeyConstraint(['const_id'], ['Construction.id'], )
 
@@ -32,4 +32,4 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.drop_table('Construction')
+    op.drop_table('News')

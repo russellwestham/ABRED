@@ -12,7 +12,6 @@ from config import settings
 
 ENGINE = create_engine(
     settings.DATABASE_URL,
-    encoding="utf-8",
     echo=True
 )
 
