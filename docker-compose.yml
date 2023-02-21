@@ -1,6 +1,5 @@
 version: "3.3"
 
-
 x-base_opt: &base_opt
   restart: always
   environment:
@@ -9,12 +8,12 @@ x-base_opt: &base_opt
     MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     MYSQL_HOST: ${MYSQL_HOST}
-    NEWS_CLIENT_ID : ${NEWS_CLIENT_ID}
-    NEWS_CLIENT_PW : ${NEWS_CLIENT_PW}
+    NEWS_CLIENT_ID: ${NEWS_CLIENT_ID}
+    NEWS_CLIENT_PW: ${NEWS_CLIENT_PW}
 services:
   # MySQL
   db:
-    << : *base_opt
+    <<: *base_opt
     container_name: "db"
     image: mysql:8.0
     tty: true
@@ -27,10 +26,15 @@ services:
 
   # FastAPI
   fastapi:
-    << : *base_opt
+    <<: *base_opt
     container_name: "fastapi"
     build: .
-    command: "./wait-for-it.sh db:3306 -t 10 -- uvicorn main:app --reload --host 0.0.0.0 --port 8001"
+    command:
+      - /bin/bash
+      - -c
+      - |
+        ./wait-for-it.sh db:3306 -t 10 -- python model.py
+        uvicorn main:app --reload --host 0.0.0.0 --port 8000
     entrypoint: []
     depends_on:
       - db
@@ -40,7 +44,6 @@ services:
       - local-net
     volumes:
       - ./migration:/usr/src/migration
-
 networks:
   local-net:
     driver: bridge
