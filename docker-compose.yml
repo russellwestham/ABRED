@@ -30,7 +30,7 @@ services:
     << : *base_opt
     container_name: "fastapi"
     build: .
-    command: "./wait-for-it.sh db:3306 -t 10 -- uvicorn main:app --reload --host 0.0.0.0 --port 8000"
+    command: "./wait-for-it.sh db:3306 -t 10 -- uvicorn main:app --reload --host 0.0.0.0 --port 8001"
     entrypoint: []
     depends_on:
       - db
