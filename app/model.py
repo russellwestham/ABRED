@@ -9,33 +9,6 @@ from db import Base
 from db import ENGINE
 
 
-# class UserTable(Base):
-#     __tablename__ = 'user'
-#     id = Column(Integer, primary_key=True, autoincrement=True)
-#     name = Column(String(30), nullable=False)
-#     age = Column(Integer)
-#     email = Column(String(50), nullable=False)
-
-# class User(BaseModel):
-#     id: int
-#     name: str
-#     age: int
-#     email: str
-
-
-# class TargetItemTable(Base):
-#     __tablename__ = 'target_item'
-#     id = Column(Integer, primary_key=True, autoincrement=True)
-#     name = Column(String(30), nullable=False)
-#     keywords = Column(String(100), nullable=False)
-
-
-# class TargetItem(BaseModel):
-#     id: int
-#     name: str
-#     keywords: str
-
-# Construction table 설명
 class ConstructionStatTable(Base):
     __tablename__ = 'construction_stat'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -50,7 +23,7 @@ class ConstructionStatTable(Base):
     freq_road_side_type = Column(JSON, nullable=True)
     cnt_lot = Column(Integer, nullable=True)
 
-
+# Construction table
 class ConstructionTable(Base):
     __tablename__ = 'Construction'
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
@@ -58,28 +31,98 @@ class ConstructionTable(Base):
         back_populates="construction")  # 부모(construction)을 참조하는 참조변수(news)
     lots: Mapped[List["LotTable"]] = relationship(
         back_populates="construction")
-    name = Column(String(30), nullable=False)
-    type = Column(String(50), nullable=False)
-    stage = Column(String(50), nullable=False)
-    address = Column(String(50), nullable=False)
+
+    # name = Column(String(30), nullable=False)
+    # type = Column(String(50), nullable=False)
+    # stage = Column(String(50), nullable=False)
+    # address = Column(String(50), nullable=False)
     gis_data = Column(String(50), nullable=False)
     keywords = Column(String(100), nullable=True)
     stats: Mapped[List[ConstructionStatTable]] = relationship(
         back_populates="construction")
+        
+    BSNS_PK = Column(String(50), nullable=False) #사업번호
+    GU_NM = Column(String(30), nullable=False) #자치구 이름
+    BJDON_NM = Column(String(30), nullable=False) #법정동
+    BTYP_NM = Column(String(30), nullable=False) #사업구분
+    STEP_SE_NM = Column(String(30), nullable=False) #운영구분
+    CAFE_NM = Column(String(30), nullable=False) #추진위원회/조합명
+    REPRSNT_JIBUN = Column(String(30), nullable=False) #대표지번
+    PROGRS_STTUS = Column(String(30), nullable=False) #진행단계
+    CAFE_STTUS = Column(String(30), nullable=False) #상태
+    ZONE_NM = Column(String(30), nullable=False) #정비구역명칭
+    ZONE_ADRES = Column(String(30), nullable=False) #정비구역위치
+    ZONE_AR = Column(Float, nullable=False) #정비구역면적
+    TOTAR = Column(Float, nullable=False) # 건축연면적
+    CTY_PLAN_SPFC_NM = Column(String(50), nullable=False) # 용도지역
+    CTY_PLAN_SPCFC_NM =  Column(String(30), nullable=False) #용도지구
+    LAD_BLDLND_AR = Column(Float, nullable=True) #택지면적
+    LAD_PBSPCE_AR = Column(Float, nullable=True) #공공면적
+    LAD_ROAD_AR = Column(Float, nullable=True) # 도로면적
+    LAD_PARK_AR = Column(Float, nullable=True) #공원면적
+    LAD_GREENS_AR = Column(Float, nullable=True) #녹지면적
+    LAD_SCHUL_AR = Column(Float, nullable=True) #학교면적
+    LAD_ETC_AR = Column(Float, nullable=True) #기타면적
+    BILDNG_PRPOS_NM = Column(String(30), nullable=False) #주용도
+    BILDNG_BDTLDR  = Column(Float, nullable=False) # 건폐율
+    BILDNG_FLRSPCER = Column(Float, nullable=False) # 용적률
+    BILDNG_HG = Column(Float, nullable=False) # 높이
+    BILDNG_GROUND_FLOOR_CO = Column(Integer, nullable=True) # 지상층수 
+    BILDNG_UNDGRND_FLOOR_CO = Column(Integer, nullable=True) # 지하층수
+    SUM_BILDNG_CO = Column(Integer, nullable=False) # 건설세대총수
+    BILDNG_60_CO = Column(Integer, nullable=True) # 60미만 건설세대수
+    BILDNG_60_85_CO = Column(Integer, nullable=True) # 60이상 85이하 건설세대수
+    BILDNG_85_CO = Column(Integer, nullable=True) # 85초과 건설세대수
+    BILDNG_RM =  Column(String(30), nullable=True) #건축계획비고
+    LOCIMG01 = Column(String(50), nullable=False) #위치도
+    LOCIMG02 = Column(String(50), nullable=False) #조감도
+    LOCIMG03 = Column(String(50), nullable=False) #배치도
 
 
 class Construction(BaseModel):
     id: int
-    name: str
-    type: str
-    stage: str
-    address: str
     gis_data: str
     keywords: str
 
+    BSNS_PK = str #사업번호
+    GU_NM = str #자치구 이름
+    BJDON_NM = str #법정동
+    BTYP_NM = str #사업구분
+    STEP_SE_NM = str #운영구분
+    CAFE_NM = str #추진위원회/조합명
+    REPRSNT_JIBUN = str #대표지번
+    PROGRS_STTUS = str #진행단계
+    CAFE_STTUS = str #상태
+    ZONE_NM = str #정비구역명칭
+    ZONE_ADRES = str #정비구역위치
+    ZONE_AR = float #정비구역면적
+    TOTAR = float # 건축연면적
+    CTY_PLAN_SPFC_NM = str # 용도지역
+    CTY_PLAN_SPCFC_NM =  str #용도지구
+    LAD_BLDLND_AR = float #택지면적
+    LAD_PBSPCE_AR = float #공공면적
+    LAD_ROAD_AR = float #도로면적
+    LAD_PARK_AR = float #공원면적
+    LAD_GREENS_AR = float #녹지면적
+    LAD_SCHUL_AR = float #학교면적
+    LAD_ETC_AR = float #기타면적
+    BILDNG_PRPOS_NM = str #주용도
+    BILDNG_BDTLDR  = float # 건폐율
+    BILDNG_FLRSPCER = float # 용적률
+    BILDNG_HG = float # 높이
+    BILDNG_GROUND_FLOOR_CO = int # 지상층수 
+    BILDNG_UNDGRND_FLOOR_CO = int # 지하층수
+    SUM_BILDNG_CO = int # 건설세대총수
+    BILDNG_60_CO = int # 60미만 건설세대수
+    BILDNG_60_85_CO = int # 60이상 85이하 건설세대수
+    BILDNG_85_CO = int # 85초과 건설세대수
+    BILDNG_RM = str #건축계획비고
+    LOCIMG01 = str #위치도
+    LOCIMG02 = str #조감도
+    LOCIMG03 = str #배치도
+
+
 # News Table 설명
-
-
 class NewsTable(Base):
     __tablename__ = 'News'
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
@@ -106,6 +149,7 @@ class News(BaseModel):
     # ks_graph = Column(String(50), nullable=True)
 
 
+# Lot Price table
 class LotPriceTable(Base):
     __tablename__ = 'lot_price'
     id = Column(Integer, primary_key=True, autoincrement=True)

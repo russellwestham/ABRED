@@ -6,7 +6,7 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 # from sklearn.metrics.pairwise import cosine_similarity
 # from sentence_transformers import SentenceTransformer
 
-from topicrank import TopicRank
+from util.topicrank import TopicRank
 from tqdm import tqdm
 from summa import keywords
 

@@ -1,7 +1,7 @@
 import requests
 import pandas as pd
 from config import settings
-from keyword_extractor import TextRankExtractor
+from util.keyword_extractor import TextRankExtractor
                                 # ,KeyBertExtractor, TFIDFExtractor, TopicRankExtractor, KeyBertEmbeddingExtractor
 # import knowledge_graph as kg
 # 기본적인 환경 설정

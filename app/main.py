@@ -6,9 +6,9 @@ from config import settings
 from model import create_tbl, ConstructionTable, Construction, NewsTable, News, LotTable, Lot, ConstructionStatTable
 import pandas as pd
 # from deta import App
-import news_table
+import util.news_table
 from fastapi import HTTPException
-from const_stats import update_stats
+from util.const_stats import update_stats
 
 app = FastAPI()
 
@@ -20,55 +20,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# ----------APIs------------
-# @app.get("/users")
-# async def read_users():
-#     users = session.query(UserTable).all()
-#     return users
-
-# @app.get("/users/{user_id}")
-# async def read_user(user_id: int):
-#     user = session.query(UserTable).\
-#         filter(UserTable.id == user_id).first()
-#     return user
-
-# @app.post("/user")
-# async def create_user(name: str, age: int, email: str):
-#     user = UserTable()
-#     user.name = name
-#     user.age = age
-#     user.email = email
-#     session.add(user)
-#     session.commit()
-
-# @app.put("/users")
-# async def update_users(users: List[User]):
-#     for new_user in users:
-#         user = session.query(UserTable).\
-#             filter(UserTable.id == new_user.id).first()
-#         user.name = new_user.name
-#         user.age = new_user.age
-#         user.email = new_user.email
-#         session.commit()
-
-# # ----------test APIs------------
-
-
-# @app.get("/target_items")
-# async def read_target_items():
-#     users = session.query(TargetItemTable).all()
-#     return users
-
-
-# @app.post("/target_item")
-# async def create_target_item(name: str, keywords: str):
-#     target_item = TargetItemTable()
-#     target_item.name = name
-#     target_item.keywords = keywords
-#     session.add(target_item)
-#     session.commit()
-
 
 # ----------Constuction APIs------------
 # 전체 construction 정보 가져오기
@@ -153,18 +104,18 @@ async def read_news(news_id: int):
 # # 새로운 news 추가하기
 
 
-@app.post("/news/{construction_name}")
+@app.post("/news/{construction_id}")
 # @app.post("/news")
-async def create_news(construction_name: str):
+async def create_news(construction_id: str):
     create_tbl()
-    keyword = construction_name
+    keyword = construction_id
     newsTable = news_table.NewsAPITable(keyword)
     df = newsTable.get_data()
     for i, row in df.iterrows():
         News = NewsTable()
         # construction id 찾기
         construction = session.query(ConstructionTable).filter(
-            ConstructionTable.name == construction_name).first()
+            ConstructionTable.id == construction_id).first()
         News.construction_id = construction.id
         # Newstable의 항목들 채우기
         News.thumnl_url = row['thumnl_url']
