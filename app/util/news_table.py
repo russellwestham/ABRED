@@ -59,4 +59,4 @@ class NewsAPITable():
             keyword_extractor = keyword_extractor_class(df_docs['keywords'], n_gram_range=(1,1))
             keywords = keyword_extractor.extract_keywords(top_n=self.TOP_K)
 
-        return keywords['keywords']
+        return keywords['keywords'].iloc[0]

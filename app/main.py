@@ -6,7 +6,7 @@ from config import settings
 from model import create_tbl, ConstructionTable, Construction, NewsTable, News, LotTable, Lot, ConstructionStatTable
 import pandas as pd
 # from deta import App
-import util.news_table
+import util.news_table as news_table
 from fastapi import HTTPException
 from util.const_stats import update_stats
 
@@ -36,15 +36,11 @@ async def read_construction(construction_id: int):
         filter(ConstructionTable.id == construction_id).first()
     return construction
 # 새로운 construction 추가하기
-
-
 @app.post("/construction")
 async def create_construction(name: str, type: str, stage: str, address: str, gis_data: str,):
     construction = ConstructionTable()
     construction.name = name
     construction.type = type
-    construction.stage = stage
-    construction.address = address
     construction.gis_data = gis_data
     # 재개발 사업 별 keywords 구하기
     newsTable = news_table.NewsAPITable(name)
@@ -53,6 +49,19 @@ async def create_construction(name: str, type: str, stage: str, address: str, gi
 
     session.add(construction)
     session.commit()
+
+# keyword 추출 확인용 api
+@app.post("/construction/{construction_name}")
+async def create_construction(construction_name: str):
+    construction = ConstructionTable()
+    construction.name = construction_name
+    # 재개발 사업 별 keywords 구하기
+    newsTable = news_table.NewsAPITable(construction_name)
+    df = newsTable.get_data()
+    print(df['pubDate'])
+
+    # session.add(construction)
+    # session.commit()
 # consturction 내용 변경하기
 
 
@@ -109,8 +118,8 @@ async def read_news(news_id: int):
 async def create_news(construction_id: str):
     create_tbl()
     keyword = construction_id
-    newsTable = news_table.NewsAPITable(keyword)
-    df = newsTable.get_data()
+    table = news_table.NewsAPITable(keyword)
+    df = table.get_data()
     for i, row in df.iterrows():
         News = NewsTable()
         # construction id 찾기
@@ -123,6 +132,7 @@ async def create_news(construction_id: str):
         News.title = row['title']
         News.description = row['description']
         # News.keywords = row['keywords']
+        News.pubdate = row['pubDate']
         News.ks_graph = row['ks_graph']
 
         session.add(News)

@@ -31,11 +31,6 @@ class ConstructionTable(Base):
         back_populates="construction")  # 부모(construction)을 참조하는 참조변수(news)
     lots: Mapped[List["LotTable"]] = relationship(
         back_populates="construction")
-
-    # name = Column(String(30), nullable=False)
-    # type = Column(String(50), nullable=False)
-    # stage = Column(String(50), nullable=False)
-    # address = Column(String(50), nullable=False)
     gis_data = Column(String(50), nullable=False)
     keywords = Column(String(100), nullable=True)
     stats: Mapped[List[ConstructionStatTable]] = relationship(
@@ -127,8 +122,7 @@ class NewsTable(Base):
     __tablename__ = 'News'
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     construction_id: Mapped[int] = mapped_column(ForeignKey("Construction.id"))
-    construction: Mapped["ConstructionTable"] = relationship(
-        back_populates="news")
+    construction: Mapped["ConstructionTable"] = relationship(back_populates="news")
 
     thumnl_url = Column(String(50), nullable=False)
     url = Column(String(100), nullable=False)
@@ -136,6 +130,8 @@ class NewsTable(Base):
     description = Column(String(500), nullable=False)
     # keywords = Column(String(50), nullable=True)
     ks_graph = Column(String(50), nullable=True)
+    pubdate = Column(String(50), nullable=True)
+    
 
 
 class News(BaseModel):
@@ -145,6 +141,7 @@ class News(BaseModel):
     url = str
     title = str
     description = str
+    pub_date = str
     # keywords = str
     # ks_graph = Column(String(50), nullable=True)
 
