@@ -23,7 +23,7 @@ $ make up
 ```
 
 ## DB migration  
-befor migration, fix fastapi code
+before migration, fix fastapi code
 
 ```
 # access fastapi docker
