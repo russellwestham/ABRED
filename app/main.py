@@ -37,7 +37,44 @@ async def read_construction(construction_id: int):
     return construction
 # 새로운 construction 추가하기
 @app.post("/construction")
-async def create_construction(name: str, type: str, stage: str, address: str, gis_data: str,):
+async def create_construction(name: str, type: str, stage: str, address: str, gis_data: str
+    ,BSNS_PK : str #사업번호
+    ,GU_NM : str #자치구 이름
+    ,BJDON_NM : str #법정동
+    ,BTYP_NM : str #사업구분
+    ,STEP_SE_NM : str #운영구분
+    ,CAFE_NM : str #추진위원회/조합명
+    ,REPRSNT_JIBUN : str #대표지번
+    ,PROGRS_STTUS : str #진행단계
+    ,CAFE_STTUS : str #상태
+    ,ZONE_NM : str #정비구역명칭
+    ,ZONE_ADRES : str #정비구역위치
+    ,ZONE_AR : float #정비구역면적
+    ,TOTAR : float # 건축연면적
+    ,CTY_PLAN_SPFC_NM : str # 용도지역
+    ,CTY_PLAN_SPCFC_NM :  str #용도지구
+    ,LAD_BLDLND_AR : float #택지면적
+    ,LAD_PBSPCE_AR : float #공공면적
+    ,LAD_ROAD_AR : float #도로면적
+    ,LAD_PARK_AR : float #공원면적
+    ,LAD_GREENS_AR : float #녹지면적
+    ,LAD_SCHUL_AR : float #학교면적
+    ,LAD_ETC_AR : float #기타면적
+    ,BILDNG_PRPOS_NM : str #주용도
+    ,BILDNG_BDTLDR  : float # 건폐율
+    ,BILDNG_FLRSPCER : float # 용적률
+    ,BILDNG_HG : float # 높이
+    ,BILDNG_GROUND_FLOOR_CO : int # 지상층수 
+    ,BILDNG_UNDGRND_FLOOR_CO : int # 지하층수
+    ,SUM_BILDNG_CO : int # 건설세대총수
+    ,BILDNG_60_CO : int # 60미만 건설세대수
+    ,BILDNG_60_85_CO : int # 60이상 85이하 건설세대수
+    ,BILDNG_85_CO : int # 85초과 건설세대수
+    ,BILDNG_RM : str #건축계획비고
+    ,LOCIMG01 : str #위치도
+    ,LOCIMG02 : str #조감도
+    ,LOCIMG03 : str #배치도
+    ):
     construction = ConstructionTable()
     construction.name = name
     construction.type = type
@@ -45,23 +82,49 @@ async def create_construction(name: str, type: str, stage: str, address: str, gi
     # 재개발 사업 별 keywords 구하기
     newsTable = news_table.NewsAPITable(name)
     df = newsTable.get_data()
-    construction.keywords = newsTable.extract_keywords(df)
+    df_docs = newsTable.merge_news(df)
+    construction.keywords = newsTable.extract_keywords(df_docs).iloc[0]
 
+    # 크롤링으로 그 외 데이터 가져오기
+    construction.BSNS_PK = BSNS_PK #사업번호
+    construction.GU_NM =GU_NM#자치구 이름
+    construction.BJDON_NM =BJDON_NM#법정동
+    construction.BTYP_NM =  BTYP_NM#사업구분
+    construction.STEP_SE_NM =STEP_SE_NM#운영구분
+    construction.CAFE_NM =  CAFE_NM #추진위원회/조합명
+    construction.REPRSNT_JIBUN =  REPRSNT_JIBUN #대표지번
+    construction.PROGRS_STTUS =  PROGRS_STTUS#진행단계
+    construction.CAFE_STTUS = CAFE_STTUS #상태
+    construction.ZONE_NM = ZONE_NM #정비구역명칭
+    construction.ZONE_ADRES = ZONE_ADRES #정비구역위치
+    construction.ZONE_AR = ZONE_AR #정비구역면적
+    construction.TOTAR = TOTAR # 건축연면적
+    construction.CTY_PLAN_SPFC_NM = CTY_PLAN_SPFC_NM # 용도지역
+    construction.CTY_PLAN_SPCFC_NM = CTY_PLAN_SPCFC_NM  #용도지구
+    construction.LAD_BLDLND_AR = LAD_BLDLND_AR #택지면적
+    construction.LAD_PBSPCE_AR = LAD_PBSPCE_AR #공공면적
+    construction.LAD_ROAD_AR = LAD_ROAD_AR # 도로면적
+    construction.LAD_PARK_AR = LAD_PARK_AR #공원면적
+    construction.LAD_GREENS_AR = LAD_GREENS_AR #녹지면적
+    construction.LAD_SCHUL_AR = LAD_SCHUL_AR #학교면적
+    construction.LAD_ETC_AR = LAD_ETC_AR #기타면적
+    construction.BILDNG_PRPOS_NM = BILDNG_PRPOS_NM #주용도
+    construction.BILDNG_BDTLDR  = BILDNG_BDTLDR # 건폐율
+    construction.BILDNG_FLRSPCER = BILDNG_FLRSPCER # 용적률
+    construction.BILDNG_HG = BILDNG_HG # 높이
+    construction.BILDNG_GROUND_FLOOR_CO = BILDNG_GROUND_FLOOR_CO # 지상층수 
+    construction.BILDNG_UNDGRND_FLOOR_CO = BILDNG_UNDGRND_FLOOR_CO # 지하층수
+    construction.SUM_BILDNG_CO = SUM_BILDNG_CO # 건설세대총수
+    construction.BILDNG_60_CO = BILDNG_60_CO # 60미만 건설세대수
+    construction.BILDNG_60_85_CO = BILDNG_60_85_CO # 60이상 85이하 건설세대수
+    construction.BILDNG_85_CO = BILDNG_85_CO # 85초과 건설세대수
+    construction.BILDNG_RM =  BILDNG_RM #건축계획비고
+    construction.LOCIMG01 = LOCIMG01 #위치도
+    construction.LOCIMG02 = LOCIMG02 #조감도
+    construction.LOCIMG03 = LOCIMG03 #배치도
+    # 세션 추가
     session.add(construction)
     session.commit()
-
-# keyword 추출 확인용 api
-@app.post("/construction/{construction_name}")
-async def create_construction(construction_name: str):
-    construction = ConstructionTable()
-    construction.name = construction_name
-    # 재개발 사업 별 keywords 구하기
-    newsTable = news_table.NewsAPITable(construction_name)
-    df = newsTable.get_data()
-    print(df['pubDate'])
-
-    # session.add(construction)
-    # session.commit()
 # consturction 내용 변경하기
 
 
@@ -131,7 +194,7 @@ async def create_news(construction_id: str):
         News.url = row['url']
         News.title = row['title']
         News.description = row['description']
-        # News.keywords = row['keywords']
+        News.keywords = row['keywords']
         News.pubdate = row['pubDate']
         News.ks_graph = row['ks_graph']
 

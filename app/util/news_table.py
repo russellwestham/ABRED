@@ -1,5 +1,6 @@
 import requests
 import pandas as pd
+from urllib.parse import urlparse
 from config import settings
 from util.keyword_extractor import TextRankExtractor
                                 # ,KeyBertExtractor, TFIDFExtractor, TopicRankExtractor, KeyBertEmbeddingExtractor
@@ -9,7 +10,7 @@ class NewsAPITable():
     def __init__(self,keyword):
         self.client_id = settings.NEWS_CLIENT_ID
         self.client_secret = settings.NEWS_CLIENT_PW
-        self.display_num = 1
+        self.display_num = 100 # 1~100사이의 값
         self.url = 'https://openapi.naver.com/v1/search/news.json'
         self.keyword = keyword
         self.TOP_K = 10
@@ -30,17 +31,19 @@ class NewsAPITable():
         df = df.rename(columns = {'originallink' : 'url'}) #url로 바꿔주기
         df['thumnl_url'] = ''
         # df['keywords'] = df['title'] + ' ' + df['description']
-        # df['keywords'] = df['keywords'].apply(self.extract_keywords())
-        df['ks_graph'] = ''
-        return df
-
-
-    def extract_keywords(self,df):
         df['keywords'] = (df['title'] + ' ' + df['description']).str.replace('(&quot|<b>|</b>|&apos|;)','', regex= True)
+        df['keywords'] = self.extract_keywords(df)
+        df['ks_graph'] = ''
+        return self.media_screening(df)
+    def merge_news(self, df):
         docs = ''
         for i,row in df.iterrows():
             docs += row['keywords']
         df_docs = pd.DataFrame({'keywords' : [docs]})
+        return df_docs
+
+    def extract_keywords(self,df):
+
         keyword_extractors = {
         'text_rank' : TextRankExtractor,
         # 'tfidf' : TFIDFExtractor,
@@ -56,7 +59,27 @@ class NewsAPITable():
         # 'topic_rank'
         ]:
             keyword_extractor_class = keyword_extractors.get(keyword_extraction_method)
-            keyword_extractor = keyword_extractor_class(df_docs['keywords'], n_gram_range=(1,1))
+            keyword_extractor = keyword_extractor_class(df['keywords'], n_gram_range=(1,1))
             keywords = keyword_extractor.extract_keywords(top_n=self.TOP_K)
 
-        return keywords['keywords'].iloc[0]
+        return keywords['keywords']
+
+    def media_screening(self,df):
+        media_list = [
+            'www.yna.co.kr' #연합뉴스
+            ,'www.hani.co.kr' #한겨레
+            ,'news.kbs.co.kr' #KBS
+            ,'www.chosun.com' #조선일보
+            ,'www.khan.co.kr' #경향신문
+            ,'www.hankookilbo.com' #한국일보
+            ,'news.jtbc.co.kr' # JTBC
+            ,'news.sbs.co.kr' # SBS
+            ,'imnews.imbc.com' # MBC
+            ,'www.joongang.co.kr' # 중앙일보
+            ,'www.ytn.co.kr' # YTN
+        ]       
+        def parse_url(x):
+            return urlparse(x).netloc
+        df['media'] = df['url'].apply(parse_url)
+        df = df[df['media'].isin(media_list)]
+        return df

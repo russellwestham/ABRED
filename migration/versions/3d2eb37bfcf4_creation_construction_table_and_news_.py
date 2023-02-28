@@ -22,7 +22,7 @@ def upgrade() -> None:
         ,Column('id', Integer, nullable=False, index=True)
         ,Column('gis_data', String(50), nullable=False)
         ,Column('keywords', String(100), nullable=True)    
-        ,Column('BSNS_PK', String(50), nullable=False) #사업번호
+        ,Column('bsns_pk', String(50), nullable=False) #사업번호
         ,Column('GU_NM',String(30), nullable=False) #자치구 이름
         ,Column('BJDON_NM',String(30), nullable=False) #법정동
         ,Column('BTYP_NM',String(30), nullable=False) #사업구분
@@ -69,6 +69,7 @@ def upgrade() -> None:
         Column('title', String(length=100), nullable=False),
         Column('description', String(length=500), nullable=False),
         Column('pubdate', String(length=50), nullable=False),
+        Column('media', String(length=50), nullable=False),
         Column('ks_graph', String(length=100), nullable=False),
         PrimaryKeyConstraint('id'),
         ForeignKeyConstraint(['construction_id'], ['Construction.id'])

@@ -31,11 +31,11 @@ class ConstructionTable(Base):
         back_populates="construction")  # 부모(construction)을 참조하는 참조변수(news)
     lots: Mapped[List["LotTable"]] = relationship(
         back_populates="construction")
-    gis_data = Column(String(50), nullable=False)
-    keywords = Column(String(100), nullable=True)
     stats: Mapped[List[ConstructionStatTable]] = relationship(
         back_populates="construction")
-        
+    gis_data = Column(String(50), nullable=False)
+    keywords = Column(String(100), nullable=True)
+
     BSNS_PK = Column(String(50), nullable=False) #사업번호
     GU_NM = Column(String(30), nullable=False) #자치구 이름
     BJDON_NM = Column(String(30), nullable=False) #법정동
@@ -79,42 +79,42 @@ class Construction(BaseModel):
     gis_data: str
     keywords: str
 
-    BSNS_PK = str #사업번호
-    GU_NM = str #자치구 이름
-    BJDON_NM = str #법정동
-    BTYP_NM = str #사업구분
-    STEP_SE_NM = str #운영구분
-    CAFE_NM = str #추진위원회/조합명
-    REPRSNT_JIBUN = str #대표지번
-    PROGRS_STTUS = str #진행단계
-    CAFE_STTUS = str #상태
-    ZONE_NM = str #정비구역명칭
-    ZONE_ADRES = str #정비구역위치
-    ZONE_AR = float #정비구역면적
-    TOTAR = float # 건축연면적
-    CTY_PLAN_SPFC_NM = str # 용도지역
-    CTY_PLAN_SPCFC_NM =  str #용도지구
-    LAD_BLDLND_AR = float #택지면적
-    LAD_PBSPCE_AR = float #공공면적
-    LAD_ROAD_AR = float #도로면적
-    LAD_PARK_AR = float #공원면적
-    LAD_GREENS_AR = float #녹지면적
-    LAD_SCHUL_AR = float #학교면적
-    LAD_ETC_AR = float #기타면적
-    BILDNG_PRPOS_NM = str #주용도
-    BILDNG_BDTLDR  = float # 건폐율
-    BILDNG_FLRSPCER = float # 용적률
-    BILDNG_HG = float # 높이
-    BILDNG_GROUND_FLOOR_CO = int # 지상층수 
-    BILDNG_UNDGRND_FLOOR_CO = int # 지하층수
-    SUM_BILDNG_CO = int # 건설세대총수
-    BILDNG_60_CO = int # 60미만 건설세대수
-    BILDNG_60_85_CO = int # 60이상 85이하 건설세대수
-    BILDNG_85_CO = int # 85초과 건설세대수
-    BILDNG_RM = str #건축계획비고
-    LOCIMG01 = str #위치도
-    LOCIMG02 = str #조감도
-    LOCIMG03 = str #배치도
+    BSNS_PK : str #사업번호
+    GU_NM : str #자치구 이름
+    BJDON_NM : str #법정동
+    BTYP_NM : str #사업구분
+    STEP_SE_NM : str #운영구분
+    CAFE_NM : str #추진위원회/조합명
+    REPRSNT_JIBUN : str #대표지번
+    PROGRS_STTUS : str #진행단계
+    CAFE_STTUS : str #상태
+    ZONE_NM : str #정비구역명칭
+    ZONE_ADRES : str #정비구역위치
+    ZONE_AR : float #정비구역면적
+    TOTAR : float # 건축연면적
+    CTY_PLAN_SPFC_NM : str # 용도지역
+    CTY_PLAN_SPCFC_NM :  str #용도지구
+    LAD_BLDLND_AR : float #택지면적
+    LAD_PBSPCE_AR : float #공공면적
+    LAD_ROAD_AR : float #도로면적
+    LAD_PARK_AR : float #공원면적
+    LAD_GREENS_AR : float #녹지면적
+    LAD_SCHUL_AR : float #학교면적
+    LAD_ETC_AR : float #기타면적
+    BILDNG_PRPOS_NM : str #주용도
+    BILDNG_BDTLDR  : float # 건폐율
+    BILDNG_FLRSPCER : float # 용적률
+    BILDNG_HG : float # 높이
+    BILDNG_GROUND_FLOOR_CO : int # 지상층수 
+    BILDNG_UNDGRND_FLOOR_CO : int # 지하층수
+    SUM_BILDNG_CO : int # 건설세대총수
+    BILDNG_60_CO : int # 60미만 건설세대수
+    BILDNG_60_85_CO : int # 60이상 85이하 건설세대수
+    BILDNG_85_CO : int # 85초과 건설세대수
+    BILDNG_RM : str #건축계획비고
+    LOCIMG01 : str #위치도
+    LOCIMG02 : str #조감도
+    LOCIMG03 : str #배치도
 
 
 # News Table 설명
@@ -128,21 +128,23 @@ class NewsTable(Base):
     url = Column(String(100), nullable=False)
     title = Column(String(100), nullable=False)
     description = Column(String(500), nullable=False)
-    # keywords = Column(String(50), nullable=True)
+    keywords = Column(String(50), nullable=True)
     ks_graph = Column(String(50), nullable=True)
     pubdate = Column(String(50), nullable=True)
+    media = Column(String(50), nullable=True)
     
 
 
 class News(BaseModel):
-    id = int
-    construction_id = int
-    thumnl_url = str
-    url = str
-    title = str
-    description = str
-    pub_date = str
-    # keywords = str
+    id : int
+    construction_id : int
+    thumnl_url : str
+    url : str
+    title : str
+    description : str
+    pubdate : str
+    keywords : str
+    media :str
     # ks_graph = Column(String(50), nullable=True)
 
 
