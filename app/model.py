@@ -33,8 +33,14 @@ class ConstructionTable(Base):
         back_populates="construction")
     stats: Mapped[List[ConstructionStatTable]] = relationship(
         back_populates="construction")
+    preprice_simulation: Mapped[List["PrePriceSimulTable"]] = relationship(
+        back_populates="construction")
+    sale_informations: Mapped[List["SaleInfoTable"]] = relationship(
+        back_populates="construction")
     gis_data = Column(String(50), nullable=False)
     keywords = Column(String(100), nullable=True)
+    pyeong_cost = Column(Integer, nullable=False)
+    donation_land_ratio = Column(Float, nullable=False)
 
     BSNS_PK = Column(String(50), nullable=False) #사업번호
     GU_NM = Column(String(30), nullable=False) #자치구 이름
@@ -78,6 +84,8 @@ class Construction(BaseModel):
     id: int
     gis_data: str
     keywords: str
+    pyeong_cost: int
+    donation_land_ratio: float
     BSNS_PK : str #사업번호
     GU_NM : str #자치구 이름
     BJDON_NM : str #법정동
@@ -196,6 +204,65 @@ class Lot(BaseModel):
     topography_form: str
     road_side_type: str
 
+
+
+# PrePriceSimul talble
+class PrePriceSimulTable(Base):
+    __tablename__ = 'preprice_simulation'
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    construction_id: Mapped[int] = mapped_column(ForeignKey("Construction.id"))
+    construction: Mapped["ConstructionTable"] = relationship(
+        back_populates="preprice_simulations")
+    pre_simul_date = Column(Integer, nullable=False)
+    pre_predicted_prc = Column(Integer, nullable=False)
+    building_number = Column(Integer, nullable=False)
+    room_number = Column(Integer, nullable=False)
+    
+class PrePreiceSimul(BaseModel):
+    id: int
+    construction_id: int
+    pre_simul_date: int
+    pre_predicted_prc: int
+    building_number: int
+    room_number: int
+    
+# PostPriceSimul talble
+class PostPriceSimulTable(Base):
+    __tablename__ = 'postprice_simulation'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    sale_id = Column(Integer, ForeignKey('lot.id'), nullable=False)
+    post_simul_date = Column(Integer, nullable=False)
+    post_predicted_prc = Column(Integer, nullable=False)
+
+class PostPriceSimul(BaseModel):
+    id: int
+    construction_id: int
+    #pyeong_type: int
+    post_simul_date: int
+    post_predicted_prc: int
+
+# SaleInformation
+class SaleInfoTable(Base):
+    __tablename__ = 'sale_information'
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    construction_id: Mapped[int] = mapped_column(ForeignKey("Construction.id"))
+    construction: Mapped["ConstructionTable"] = relationship(
+        back_populates="sale_informations")
+    postprice_simulations: Mapped[List["PostPriceSimulTable"]] = relationship(
+        back_populates="sale_information")
+    pyeong_type = Column(Integer, nullable=False)
+    request_land = Column(Float, nullable=False)
+    num_copartner_building = Column(Integer, nullable=False)
+    num_general_building = Column(Integer, nullable=False)
+    
+
+class SaleInfo(BaseModel):
+    id: int
+    construction_id: int
+    pyeong_type: int
+    request_land: float
+    num_copartner_building: int
+    num_general_building: int
 
 
 def create_tbl():
