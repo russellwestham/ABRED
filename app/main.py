@@ -23,6 +23,7 @@ app.add_middleware(
 
 # ----------Constuction APIs------------
 # 전체 construction 정보 가져오기
+
 @app.get("/constructions")
 async def read_constructions():
     constructions = session.query(ConstructionTable).all()
@@ -36,6 +37,7 @@ async def read_construction(construction_id: int):
         filter(ConstructionTable.id == construction_id).first()
     return construction
 # 새로운 construction 추가하기
+
 @app.post("/construction")
 async def create_construction(name: str, type: str, stage: str, address: str, gis_data: str
     ,BSNS_PK : str #사업번호
@@ -152,6 +154,8 @@ async def delete_construction(constructions: List[Construction], construction_id
             filter(ConstructionTable.id == new_construction.id).first()
         session.delete(construction)
         session.commit()
+# # news 내용 삭제하기.
+
 
 
 # ----------News APIs------------
@@ -296,7 +300,7 @@ async def delete_lot(lot_id: int):
 
 @app.get("/construction_stats/{construction_id}")
 async def read_construction_stat(construction_id: int):
-    update_stats()
+    # update_stats()
 
     construction_stat = session.query(ConstructionStatTable).\
         filter(ConstructionStatTable.construction_id == construction_id).first()

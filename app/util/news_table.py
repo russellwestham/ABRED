@@ -43,7 +43,6 @@ class NewsAPITable():
         return df_docs
 
     def extract_keywords(self,df):
-
         keyword_extractors = {
         'text_rank' : TextRankExtractor,
         # 'tfidf' : TFIDFExtractor,

@@ -19,3 +19,5 @@ RUN /bin/sh -c python -m nltk.downloader stopwords
 RUN /bin/sh -c python -m nltk.downloader punkt
 RUN /bin/sh -c python -m nltk.downloader averaged_perceptron_tagger
 
+
+

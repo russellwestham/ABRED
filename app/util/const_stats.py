@@ -3,8 +3,8 @@ from sqlalchemy import func
 from sqlalchemy.orm import sessionmaker
 from db import Base
 from db import ENGINE
+from model import ConstructionTable, ConstructionStatTable, LotTable, LotPriceTable
 
-from model import ConstructionTable, ConstructionStatTable, LotTable
 
 from collections import defaultdict
 
@@ -38,6 +38,16 @@ def create_construction_stats():
             topography_form_counts[lot.topography_form] += 1
             road_side_type_counts[lot.road_side_type] += 1
 
+        # calculate average price per year for each construction
+        lot_prices = session.query(
+            func.avg(LotPriceTable.price).label('avg_price')
+        ).join(LotTable).filter(
+            LotTable.construction_id == construction.id
+        ).group_by('year').all()
+
+        avg_price_per_year = {
+            price.year: price.avg_price for price in lot_prices}
+
         # create ConstructionStatTable instance with calculated values
         construction_stats.append(ConstructionStatTable(
             construction_id=construction.id,
@@ -49,7 +59,9 @@ def create_construction_stats():
             freq_topography_height=topography_height_counts,
             freq_topography_form=topography_form_counts,
             freq_road_side_type=road_side_type_counts,
-            cnt_lot=len(lots)
+            cnt_lot=len(lots),
+            avg_price_per_year=avg_price_per_year
+
         ))
 
     session.add_all(construction_stats)

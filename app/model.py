@@ -22,8 +22,8 @@ class ConstructionStatTable(Base):
     freq_topography_form = Column(JSON, nullable=True)
     freq_road_side_type = Column(JSON, nullable=True)
     cnt_lot = Column(Integer, nullable=True)
+    avg_price_by_year = Column(JSON)
 
-# Construction table
 class ConstructionTable(Base):
     __tablename__ = 'Construction'
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
@@ -78,7 +78,6 @@ class Construction(BaseModel):
     id: int
     gis_data: str
     keywords: str
-
     BSNS_PK : str #사업번호
     GU_NM : str #자치구 이름
     BJDON_NM : str #법정동
@@ -123,7 +122,6 @@ class NewsTable(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     construction_id: Mapped[int] = mapped_column(ForeignKey("Construction.id"))
     construction: Mapped["ConstructionTable"] = relationship(back_populates="news")
-
     thumnl_url = Column(String(50), nullable=False)
     url = Column(String(100), nullable=False)
     title = Column(String(100), nullable=False)
@@ -199,6 +197,7 @@ class Lot(BaseModel):
     road_side_type: str
 
 
+
 def create_tbl():
     Base.metadata.create_all(bind=ENGINE)
 
@@ -209,7 +208,8 @@ def drop_tbl():
 
 if __name__ == "__main__":
     # for development only
-    drop_tbl()
+    # drop_tbl()
+
     create_tbl()
 
     # for development only
