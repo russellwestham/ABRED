@@ -31,9 +31,9 @@ class ConstructionTable(Base):
         back_populates="construction")  # 부모(construction)을 참조하는 참조변수(news)
     lots: Mapped[List["LotTable"]] = relationship(
         back_populates="construction")
-    stats: Mapped[List[ConstructionStatTable]] = relationship(
+    stats: Mapped[List["ConstructionStatTable"]] = relationship(
         back_populates="construction")
-    preprice_simulation: Mapped[List["PrePriceSimulTable"]] = relationship(
+    preprice_simulations: Mapped[List["PrePriceSimulTable"]] = relationship(
         back_populates="construction")
     sale_informations: Mapped[List["SaleInfoTable"]] = relationship(
         back_populates="construction")
