@@ -229,8 +229,9 @@ class PrePreiceSimul(BaseModel):
 # PostPriceSimul talble
 class PostPriceSimulTable(Base):
     __tablename__ = 'postprice_simulation'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    sale_id = Column(Integer, ForeignKey('lot.id'), nullable=False)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    sale_id = Column(Integer, ForeignKey('sale_information.id'), nullable=False)
+    sale = relationship('SaleInfoTable', back_populates='postprices')
     post_simul_date = Column(Integer, nullable=False)
     post_predicted_prc = Column(Integer, nullable=False)
 
@@ -248,13 +249,11 @@ class SaleInfoTable(Base):
     construction_id: Mapped[int] = mapped_column(ForeignKey("Construction.id"))
     construction: Mapped["ConstructionTable"] = relationship(
         back_populates="sale_informations")
-    postprice_simulations: Mapped[List["PostPriceSimulTable"]] = relationship(
-        back_populates="sale_information")
     pyeong_type = Column(Integer, nullable=False)
     request_land = Column(Float, nullable=False)
     num_copartner_building = Column(Integer, nullable=False)
     num_general_building = Column(Integer, nullable=False)
-    
+    postprices = relationship('PostPriceSimulTable', back_populates='sale')
 
 class SaleInfo(BaseModel):
     id: int
