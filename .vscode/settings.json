@@ -1,4 +1,7 @@
 {
-    "terminal.integrated.scrollback": 10000,
-    "editor.mouseWheelZoom": true
+  "terminal.integrated.scrollback": 10000,
+  "editor.mouseWheelZoom": true,
+  "prettier.insertPragma": false,
+  "editor.formatOnSaveMode": "file",
+  "editor.formatOnSave": false
 }
