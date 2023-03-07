@@ -39,8 +39,8 @@ class ConstructionTable(Base):
         back_populates="construction")
     gis_data = Column(String(50), nullable=False)
     keywords = Column(String(100), nullable=True)
-    pyeong_cost = Column(Integer, nullable=False)
-    donation_land_ratio = Column(Float, nullable=False)
+    pyeong_cost = Column(Integer, nullable=True)
+    donation_land_ratio = Column(Float, nullable=True)
 
     BSNS_PK = Column(String(50), nullable=False) #사업번호
     GU_NM = Column(String(30), nullable=False) #자치구 이름
@@ -218,7 +218,7 @@ class PrePriceSimulTable(Base):
     building_number = Column(Integer, nullable=False)
     room_number = Column(Integer, nullable=False)
     
-class PrePreiceSimul(BaseModel):
+class PrePriceSimul(BaseModel):
     id: int
     construction_id: int
     pre_simul_date: int
@@ -232,12 +232,13 @@ class PostPriceSimulTable(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     sale_id = Column(Integer, ForeignKey('sale_information.id'), nullable=False)
     sale = relationship('SaleInfoTable', back_populates='postprices')
+    #pyeong_type = Column(Integer, nullable=False)
     post_simul_date = Column(Integer, nullable=False)
     post_predicted_prc = Column(Integer, nullable=False)
 
 class PostPriceSimul(BaseModel):
     id: int
-    construction_id: int
+    sale_id: int
     #pyeong_type: int
     post_simul_date: int
     post_predicted_prc: int
