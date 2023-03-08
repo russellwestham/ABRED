@@ -27,6 +27,7 @@ class NewsAPITable():
         # 뉴스 데이터가 없는 경우 빈 df로 return
         if len(df) == 0 :
             return df
+
         # db에 적재되는 형태랑 같도록 수정
         df = df.drop('link', axis = 1) # 중복되는 link 삭제
         df = df.rename(columns = {'originallink' : 'url'}) #url로 바꿔주기

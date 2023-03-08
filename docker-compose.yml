@@ -11,6 +11,7 @@ x-base_opt: &base_opt
     NEWS_CLIENT_ID: ${NEWS_CLIENT_ID}
     NEWS_CLIENT_PW: ${NEWS_CLIENT_PW}
     CONSTRUCTION_SERVICE_KEY : ${CONSTRUCTION_SERVICE_KEY}
+
 services:
   # MySQL
   db:
@@ -34,8 +35,7 @@ services:
       - /bin/bash
       - -c
       - |
-        ./wait-for-it.sh db:3306 -t 10 -- python model.py
-        uvicorn main:app --reload --host 0.0.0.0 --port 8000
+        /wait-for-it.sh db:3306 -t 10 -- uvicorn main:app --reload --host 0.0.0.0 --port 8000
     entrypoint: []
     depends_on:
       - db
@@ -45,6 +45,8 @@ services:
       - local-net
     volumes:
       - ./migration:/usr/src/migration
+      - ./app:/usr/src/app
+
 networks:
   local-net:
     driver: bridge

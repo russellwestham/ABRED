@@ -3,13 +3,13 @@ from typing import List
 from starlette.middleware.cors import CORSMiddleware
 from db import session
 from config import settings
-from model import create_tbl, ConstructionTable, Construction, NewsTable, News, LotTable, Lot, ConstructionStatTable
+from model import create_tbl, ConstructionTable, Construction, NewsTable, News, LotTable, Lot, ConstructionStatTable, PrePriceSimulTable, PrePriceSimul, PostPriceSimulTable, PostPriceSimul, SaleInfoTable, SaleInfo
 import pandas as pd
-# from deta import App
 from fastapi import HTTPException
 from util.const_stats import update_stats
 import util.construction_data as Construction_Data
 import util.news_table as news_table
+
 
 app = FastAPI()
 
@@ -203,6 +203,8 @@ async def delete_news(newslist: List[News], news_id):
 # news 새로고침 하기
 
 
+
+
 # ----------Lots APIs------------
 # Lot CRUD APIs
 
@@ -265,13 +267,64 @@ async def delete_lot(lot_id: int):
     session.commit()
     return {"message": "Lot deleted successfully"}
 
-# ----------Construction_stats APIs------------
+# ----------preprice_simulation APIs------------
+@app.get("/preprice_simulation/{construction_id}")
+async def read_preprice_simulation(construction_id: int):
+    preprice_simul = session.query(PrePriceSimulTable).\
+        filter(PrePriceSimulTable.id == construction_id).first()
+    return preprice_simul
+
+@app.post("/preprice_simulation")
+async def create_preprice_simulation(preprice: PrePriceSimul):
+    db_preprice = PrePriceSimulTable(
+        construction_id=preprice.construction_id,
+        pre_simul_date=preprice.pre_simul_date,
+        pre_predicted_prc=preprice.pre_predicted_prc,
+        building_number=preprice.building_number,
+        room_number=preprice.room_number
+    )
+    session.add(db_preprice)
+    session.commit()
+    session.refresh(db_preprice)
+    return db_preprice
+
+# ----------sale_information APIs------------
+@app.get("/sale_information/{construction_id}")
+async def read_preprice_simulation(construction_id: int):
+    sale_information = session.query(SaleInfoTable).\
+        filter(SaleInfoTable.id == construction_id).first()
+    return sale_information
+
+@app.post("/sale_information")
+async def create_sale_information(saleinfo: SaleInfo):
+    db_saleinfo = SaleInfoTable(
+        construction_id=saleinfo.construction_id,
+        pyeong_type=saleinfo.pyeong_type,
+        request_land=saleinfo.request_land,
+        num_copartner_building=saleinfo.num_copartner_building,
+        num_general_building=saleinfo.num_general_building
+    )
+    session.add(db_saleinfo)
+    session.commit()
+    session.refresh(db_saleinfo)
+    return db_saleinfo
 
 
-@app.get("/construction_stats/{construction_id}")
-async def read_construction_stat(construction_id: int):
-    update_stats()
+# ----------postprice_simulation APIs------------
+@app.get("/postprice_simulation/{construction_id}")
+async def read_preprice_simulation(construction_id: int, sale_id: int):
+    preprice = session.query(PostPriceSimulTable).\
+        filter(PostPriceSimulTable.id == construction_id).first()
+    return preprice
 
-    construction_stat = session.query(ConstructionStatTable).\
-        filter(ConstructionStatTable.construction_id == construction_id).first()
-    return construction_stat
+@app.post("/postprice_simulation")
+async def create_sale_information(postprice: PostPriceSimul):
+    db_postprice = PostPriceSimulTable(
+        sale_id=postprice.sale_id,
+        post_simul_date=postprice.post_simul_date,
+        post_predicted_prc=postprice.post_predicted_prc
+    )
+    session.add(db_postprice)
+    session.commit()
+    session.refresh(db_postprice)
+    return db_postprice
