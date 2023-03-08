@@ -41,16 +41,16 @@ class ConstructionTable(Base):
     BJDON_NM = Column(String(30), nullable=False) #법정동
     BTYP_NM = Column(String(30), nullable=False) #사업구분
     STEP_SE_NM = Column(String(30), nullable=False) #운영구분
-    CAFE_NM = Column(String(30), nullable=False) #추진위원회/조합명
+    CAFE_NM = Column(String(100), nullable=False) #추진위원회/조합명
     REPRSNT_JIBUN = Column(String(30), nullable=False) #대표지번
     PROGRS_STTUS = Column(String(30), nullable=False) #진행단계
     CAFE_STTUS = Column(String(30), nullable=False) #상태
-    ZONE_NM = Column(String(30), nullable=False) #정비구역명칭
-    ZONE_ADRES = Column(String(30), nullable=False) #정비구역위치
-    ZONE_AR = Column(Float, nullable=False) #정비구역면적
-    TOTAR = Column(Float, nullable=False) # 건축연면적
-    CTY_PLAN_SPFC_NM = Column(String(50), nullable=False) # 용도지역
-    CTY_PLAN_SPCFC_NM =  Column(String(30), nullable=False) #용도지구
+    ZONE_NM = Column(String(100), nullable=True) #정비구역명칭
+    ZONE_ADRES = Column(String(100), nullable=True) #정비구역위치
+    ZONE_AR = Column(Float, nullable=True) #정비구역면적
+    TOTAR = Column(Float, nullable=True) # 건축연면적
+    CTY_PLAN_SPFC_NM = Column(String(200), nullable=True) # 용도지역
+    CTY_PLAN_SPCFC_NM =  Column(String(200), nullable=True) #용도지구
     LAD_BLDLND_AR = Column(Float, nullable=True) #택지면적
     LAD_PBSPCE_AR = Column(Float, nullable=True) #공공면적
     LAD_ROAD_AR = Column(Float, nullable=True) # 도로면적
@@ -58,20 +58,20 @@ class ConstructionTable(Base):
     LAD_GREENS_AR = Column(Float, nullable=True) #녹지면적
     LAD_SCHUL_AR = Column(Float, nullable=True) #학교면적
     LAD_ETC_AR = Column(Float, nullable=True) #기타면적
-    BILDNG_PRPOS_NM = Column(String(30), nullable=False) #주용도
-    BILDNG_BDTLDR  = Column(Float, nullable=False) # 건폐율
-    BILDNG_FLRSPCER = Column(Float, nullable=False) # 용적률
-    BILDNG_HG = Column(Float, nullable=False) # 높이
+    BILDNG_PRPOS_NM = Column(String(100), nullable=True) #주용도
+    BILDNG_BDTLDR  = Column(Float, nullable=True) # 건폐율
+    BILDNG_FLRSPCER = Column(Float, nullable=True) # 용적률
+    BILDNG_HG = Column(Float, nullable=True) # 높이
     BILDNG_GROUND_FLOOR_CO = Column(Integer, nullable=True) # 지상층수 
     BILDNG_UNDGRND_FLOOR_CO = Column(Integer, nullable=True) # 지하층수
-    SUM_BILDNG_CO = Column(Integer, nullable=False) # 건설세대총수
+    SUM_BILDNG_CO = Column(Integer, nullable=True) # 건설세대총수
     BILDNG_60_CO = Column(Integer, nullable=True) # 60미만 건설세대수
     BILDNG_60_85_CO = Column(Integer, nullable=True) # 60이상 85이하 건설세대수
     BILDNG_85_CO = Column(Integer, nullable=True) # 85초과 건설세대수
-    BILDNG_RM =  Column(String(30), nullable=True) #건축계획비고
-    LOCIMG01 = Column(String(50), nullable=False) #위치도
-    LOCIMG02 = Column(String(50), nullable=False) #조감도
-    LOCIMG03 = Column(String(50), nullable=False) #배치도
+    BILDNG_RM =  Column(String(200), nullable=True) #건축계획비고
+    LOCIMG01 = Column(String(200), nullable=True) #위치도
+    LOCIMG02 = Column(String(200), nullable=True) #조감도
+    LOCIMG03 = Column(String(200), nullable=True) #배치도
 
 
 class Construction(BaseModel):

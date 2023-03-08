@@ -18,24 +18,30 @@ class NewsAPITable():
     def get_data(self):
         headers = {'X-Naver-Client-Id':self.client_id, 'X-Naver-Client-Secret':self.client_secret}
         params = {'query':self.keyword, 'display':self.display_num, 'start':1, 'sort':'date'}
-
         response = requests.get(self.url, params = params, headers = headers)
         json = response.json()
+
         newslist = json['items']
 
-        # dataframe 형태로 수집
         df = pd.DataFrame(newslist)
-
+        # 뉴스 데이터가 없는 경우 빈 df로 return
+        if len(df) == 0 :
+            return df
         # db에 적재되는 형태랑 같도록 수정
         df = df.drop('link', axis = 1) # 중복되는 link 삭제
         df = df.rename(columns = {'originallink' : 'url'}) #url로 바꿔주기
         df['thumnl_url'] = ''
-        # df['keywords'] = df['title'] + ' ' + df['description']
         df['keywords'] = (df['title'] + ' ' + df['description']).str.replace('(&quot|<b>|</b>|&apos|;)','', regex= True)
         df['keywords'] = self.extract_keywords(df)
         df['ks_graph'] = ''
-        return self.media_screening(df)
+        df = self.media_screening(df)
+        return df
+
     def merge_news(self, df):
+        # 뉴스 데이터가 없는 경우 빈 df로 return
+        if len(df) == 0 :
+            return df
+        # 뉴스 데이터가 있는 경우 
         docs = ''
         for i,row in df.iterrows():
             docs += row['keywords']
@@ -43,7 +49,10 @@ class NewsAPITable():
         return df_docs
 
     def extract_keywords(self,df):
-
+        # 뉴스 데이터가 없는 경우 빈 df로 return
+        if len(df) ==0 :
+            return df
+        # 뉴스 데이터가 있는 경우
         keyword_extractors = {
         'text_rank' : TextRankExtractor,
         # 'tfidf' : TFIDFExtractor,

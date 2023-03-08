@@ -10,11 +10,18 @@ Create and Running
 add `.env` file and add configs 
 ```
 # .env example
+
+# 뉴스 api 수집을 위한 api id,pw
+NEWS_CLIENT_ID = OsLOua238f8IXy9nanMl
+NEWS_CLIENT_PW = GTaGmO7nii
+
 MYSQL_DATABASE=fastapi
 MYSQL_USER=user
 MYSQL_PASSWORD=password
 MYSQL_ROOT_PASSWORD=password
 MYSQL_HOST=db
+# construction table 수집을 위한 api key
+CONSTRUCTION_SERVICE_KEY = 457570424d6b756e36376345746541
 ```
 
 run docker-compose

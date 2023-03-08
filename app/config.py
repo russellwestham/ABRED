@@ -9,5 +9,6 @@ class Settings:
     DATABASE_URL = f"mysql+pymysql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DATABASE}"
     NEWS_CLIENT_ID : str = os.getenv("NEWS_CLIENT_ID")
     NEWS_CLIENT_PW : str = os.getenv("NEWS_CLIENT_PW")
+    CONSTRUCTION_SERVICE_KEY : str = os.getenv("CONSTRUCTION_SERVICE_KEY")
 
 settings = Settings()
