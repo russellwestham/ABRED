@@ -1,8 +1,8 @@
-"""db_final
+"""db_scheme
 
-Revision ID: fed326dd659f
+Revision ID: e539e5a69478
 Revises: 379618dd5ca6
-Create Date: 2023-03-07 10:33:19.711934
+Create Date: 2023-03-08 02:31:16.021869
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'fed326dd659f'
+revision = 'e539e5a69478'
 down_revision = '379618dd5ca6'
 branch_labels = None
 depends_on = None
@@ -22,23 +22,23 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('gis_data', sa.String(length=50), nullable=False),
     sa.Column('keywords', sa.String(length=100), nullable=True),
-    sa.Column('pyeong_cost', sa.Integer(), nullable=False),
-    sa.Column('donation_land_ratio', sa.Float(), nullable=False),
+    sa.Column('pyeong_cost', sa.Integer(), nullable=True),
+    sa.Column('donation_land_ratio', sa.Float(), nullable=True),
     sa.Column('BSNS_PK', sa.String(length=50), nullable=False),
     sa.Column('GU_NM', sa.String(length=30), nullable=False),
     sa.Column('BJDON_NM', sa.String(length=30), nullable=False),
     sa.Column('BTYP_NM', sa.String(length=30), nullable=False),
     sa.Column('STEP_SE_NM', sa.String(length=30), nullable=False),
-    sa.Column('CAFE_NM', sa.String(length=30), nullable=False),
+    sa.Column('CAFE_NM', sa.String(length=100), nullable=False),
     sa.Column('REPRSNT_JIBUN', sa.String(length=30), nullable=False),
     sa.Column('PROGRS_STTUS', sa.String(length=30), nullable=False),
     sa.Column('CAFE_STTUS', sa.String(length=30), nullable=False),
-    sa.Column('ZONE_NM', sa.String(length=30), nullable=False),
-    sa.Column('ZONE_ADRES', sa.String(length=30), nullable=False),
-    sa.Column('ZONE_AR', sa.Float(), nullable=False),
-    sa.Column('TOTAR', sa.Float(), nullable=False),
-    sa.Column('CTY_PLAN_SPFC_NM', sa.String(length=50), nullable=False),
-    sa.Column('CTY_PLAN_SPCFC_NM', sa.String(length=30), nullable=False),
+    sa.Column('ZONE_NM', sa.String(length=100), nullable=True),
+    sa.Column('ZONE_ADRES', sa.String(length=100), nullable=True),
+    sa.Column('ZONE_AR', sa.Float(), nullable=True),
+    sa.Column('TOTAR', sa.Float(), nullable=True),
+    sa.Column('CTY_PLAN_SPFC_NM', sa.String(length=200), nullable=True),
+    sa.Column('CTY_PLAN_SPCFC_NM', sa.String(length=200), nullable=True),
     sa.Column('LAD_BLDLND_AR', sa.Float(), nullable=True),
     sa.Column('LAD_PBSPCE_AR', sa.Float(), nullable=True),
     sa.Column('LAD_ROAD_AR', sa.Float(), nullable=True),
@@ -46,20 +46,20 @@ def upgrade() -> None:
     sa.Column('LAD_GREENS_AR', sa.Float(), nullable=True),
     sa.Column('LAD_SCHUL_AR', sa.Float(), nullable=True),
     sa.Column('LAD_ETC_AR', sa.Float(), nullable=True),
-    sa.Column('BILDNG_PRPOS_NM', sa.String(length=30), nullable=False),
-    sa.Column('BILDNG_BDTLDR', sa.Float(), nullable=False),
-    sa.Column('BILDNG_FLRSPCER', sa.Float(), nullable=False),
-    sa.Column('BILDNG_HG', sa.Float(), nullable=False),
+    sa.Column('BILDNG_PRPOS_NM', sa.String(length=100), nullable=True),
+    sa.Column('BILDNG_BDTLDR', sa.Float(), nullable=True),
+    sa.Column('BILDNG_FLRSPCER', sa.Float(), nullable=True),
+    sa.Column('BILDNG_HG', sa.Float(), nullable=True),
     sa.Column('BILDNG_GROUND_FLOOR_CO', sa.Integer(), nullable=True),
     sa.Column('BILDNG_UNDGRND_FLOOR_CO', sa.Integer(), nullable=True),
-    sa.Column('SUM_BILDNG_CO', sa.Integer(), nullable=False),
+    sa.Column('SUM_BILDNG_CO', sa.Integer(), nullable=True),
     sa.Column('BILDNG_60_CO', sa.Integer(), nullable=True),
     sa.Column('BILDNG_60_85_CO', sa.Integer(), nullable=True),
     sa.Column('BILDNG_85_CO', sa.Integer(), nullable=True),
-    sa.Column('BILDNG_RM', sa.String(length=30), nullable=True),
-    sa.Column('LOCIMG01', sa.String(length=50), nullable=False),
-    sa.Column('LOCIMG02', sa.String(length=50), nullable=False),
-    sa.Column('LOCIMG03', sa.String(length=50), nullable=False),
+    sa.Column('BILDNG_RM', sa.String(length=200), nullable=True),
+    sa.Column('LOCIMG01', sa.String(length=200), nullable=True),
+    sa.Column('LOCIMG02', sa.String(length=200), nullable=True),
+    sa.Column('LOCIMG03', sa.String(length=200), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('News',
