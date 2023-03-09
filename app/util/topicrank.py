@@ -2,10 +2,10 @@ import re
 import nltk
 import logging
 from itertools import product
-import networkx as nx
+# import networkx as nx
 from nltk.stem import SnowballStemmer
 from collections import defaultdict
-from langdetect import detect
+# from langdetect import detect
 from sklearn.feature_extraction.text import CountVectorizer
 from scipy.cluster.hierarchy import linkage, cophenet, fcluster
 from scipy.spatial.distance import pdist

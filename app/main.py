@@ -7,7 +7,7 @@ from model import create_tbl, ConstructionTable, Construction, NewsTable, News, 
 import pandas as pd
 from fastapi import HTTPException
 from util.const_stats import update_stats
-import util.construction_data as Construction_Data
+# import util.dump_construction_tbl as dump_construction_tbl
 import util.news_table as news_table
 
 
@@ -31,70 +31,61 @@ async def read_constructions():
 # 특정 construction 정보 가져오기
 
 
-@app.get("/constructions/{construction_id}")
+@app.get("/construction/{id}")
 async def read_construction(construction_id: int):
     construction = session.query(ConstructionTable).\
-        filter(ConstructionTable.id == construction_id).first()
+        filter(ConstructionTable.id == id).first()
     return construction
-# 새로운 construction 추가하기
+
+# 단일 새로운 construction 추가하기
 @app.post("/construction")
-async def create_construction(gis_data : str):
-    constructionData = Construction_Data.ConstructionData()
-    df_con = constructionData.get_data()
-  
-    for i, row in df_con.iterrows():
-        construction = ConstructionTable()
-        # Newstable의 항목들 채우기
-        construction.gis_data = gis_data
-        # 크롤링으로 가져온 데이터 넣기 
-        construction.BSNS_PK = row['BSNS_PK'] #사업번호
-        construction.GU_NM = row['GU_NM']#자치구 이름
-        construction.BJDON_NM = row['BJDON_NM']#법정동
-        construction.BTYP_NM = row['BTYP_NM']#사업구분
-        construction.STEP_SE_NM = row['STEP_SE_NM']#운영구분
-        construction.CAFE_NM = row['CAFE_NM'] #추진위원회/조합명
-        construction.REPRSNT_JIBUN = row['REPRSNT_JIBUN'] #대표지번
-        construction.PROGRS_STTUS = row['PROGRS_STTUS']#진행단계
-        construction.CAFE_STTUS = row['CAFE_STTUS'] #상태
-        construction.ZONE_NM = row['ZONE_NM'] #정비구역명칭
-        construction.ZONE_ADRES = row['ZONE_ADRES'] #정비구역위치
-        construction.ZONE_AR = row['ZONE_AR'] #정비구역면적
-        construction.TOTAR = row['TOTAR'] # 건축연면적
-        construction.CTY_PLAN_SPFC_NM = row['CTY_PLAN_SPFC_NM'] # 용도지역
-        construction.CTY_PLAN_SPCFC_NM = row['CTY_PLAN_SPCFC_NM']  #용도지구
-        construction.LAD_BLDLND_AR = row['LAD_BLDLND_AR'] #택지면적
-        construction.LAD_PBSPCE_AR = row['LAD_PBSPCE_AR'] #공공면적
-        construction.LAD_ROAD_AR = row['LAD_ROAD_AR'] # 도로면적
-        construction.LAD_PARK_AR = row['LAD_PARK_AR'] #공원면적
-        construction.LAD_GREENS_AR = row['LAD_GREENS_AR'] #녹지면적
-        construction.LAD_SCHUL_AR = row['LAD_SCHUL_AR'] #학교면적
-        construction.LAD_ETC_AR = row['LAD_ETC_AR'] #기타면적
-        construction.BILDNG_PRPOS_NM = row['BILDNG_PRPOS_NM'] #주용도
-        construction.BILDNG_BDTLDR  = row['BILDNG_BDTLDR'] # 건폐율
-        construction.BILDNG_FLRSPCER = row['BILDNG_FLRSPCER'] # 용적률
-        construction.BILDNG_HG = row['BILDNG_HG'] # 높이
-        construction.BILDNG_GROUND_FLOOR_CO = row['BILDNG_GROUND_FLOOR_CO'] # 지상층수 
-        construction.BILDNG_UNDGRND_FLOOR_CO = row['BILDNG_UNDGRND_FLOOR_CO'] # 지하층수
-        construction.SUM_BILDNG_CO = row['SUM_BILDNG_CO'] # 건설세대총수
-        construction.BILDNG_60_CO = row['BILDNG_60_CO'] # 60미만 건설세대수
-        construction.BILDNG_60_85_CO = row['BILDNG_60_85_CO'] # 60이상 85이하 건설세대수
-        construction.BILDNG_85_CO = row['BILDNG_85_CO'] # 85초과 건설세대수
-        construction.BILDNG_RM =  row['BILDNG_RM'] #건축계획비고
-        construction.LOCIMG01 = row['LOCIMG01'] #위치도
-        construction.LOCIMG02 = row['LOCIMG02'] #조감도
-        construction.LOCIMG03 = row['LOCIMG03'] #배치도
+async def create_construction(construction : Construction):
+    db_construction = ConstructionTable(
+        gis_data = construction.gis_data
+        ,pyeong_cost = construction.pyeong_cost
+        ,donation_land_ratio = construction.donation_land_ratio
 
-        # 재개발 사업 별 keywords 구하기
-        newsTable = news_table.NewsAPITable(row['CAFE_NM'])
-        df_news = newsTable.get_data()
-        df_docs = newsTable.merge_news(df_news)
-        if len(df_docs) !=0:
-            construction.keywords = newsTable.extract_keywords(df_docs).iloc[0]
-        else :
-            construction.keywords = ''
-
-        session.add(construction)
-        session.commit()
+        ,BSNS_PK = construction.BSNS_PK #사업번호
+        ,GU_NM = construction.GU_NM #자치구 이름
+        ,BJDON_NM = construction.BJDON_NM #법정동
+        ,BTYP_NM = construction.BTYP_NM #사업구분
+        ,STEP_SE_NM = construction.STEP_SE_NM #운영구분
+        ,CAFE_NM = construction.CAFE_NM #추진위원회/조합명
+        ,REPRSNT_JIBUN = construction.REPRSNT_JIBUN #대표지번
+        ,PROGRS_STTUS = construction.PROGRS_STTUS #진행단계
+        ,CAFE_STTUS = construction.CAFE_STTUS #상태
+        ,ZONE_NM = construction.ZONE_NM #정비구역명칭
+        ,ZONE_ADRES = construction.ZONE_ADRES #정비구역위치
+        ,ZONE_AR = construction.ZONE_AR #정비구역면적
+        ,TOTAR = construction.TOTAR # 건축연면적
+        ,CTY_PLAN_SPFC_NM = construction.CTY_PLAN_SPFC_NM # 용도지역
+        ,CTY_PLAN_SPCFC_NM = construction.CTY_PLAN_SPCFC_NM #용도지구
+        ,LAD_BLDLND_AR = construction.LAD_BLDLND_AR #택지면적
+        ,LAD_PBSPCE_AR = construction.LAD_PBSPCE_AR #공공면적
+        ,LAD_ROAD_AR = construction.LAD_ROAD_AR # 도로면적
+        ,LAD_PARK_AR = construction.LAD_PARK_AR #공원면적
+        ,LAD_GREENS_AR = construction.LAD_GREENS_AR #녹지면적
+        ,LAD_SCHUL_AR = construction.LAD_SCHUL_AR #학교면적
+        ,LAD_ETC_AR = construction.LAD_ETC_AR #기타면적
+        ,BILDNG_PRPOS_NM = construction.BILDNG_PRPOS_NM #주용도
+        ,BILDNG_BDTLDR = construction.BILDNG_BDTLDR # 건폐율
+        ,BILDNG_FLRSPCER = construction.BILDNG_FLRSPCER # 용적률
+        ,BILDNG_HG =construction.BILDNG_HG # 높이
+        ,BILDNG_GROUND_FLOOR_CO = construction.BILDNG_GROUND_FLOOR_CO # 지상층수 
+        ,BILDNG_UNDGRND_FLOOR_CO = construction.BILDNG_UNDGRND_FLOOR_CO # 지하층수
+        ,SUM_BILDNG_CO = construction.SUM_BILDNG_CO # 건설세대총수
+        ,BILDNG_60_CO = construction.BILDNG_60_CO # 60미만 건설세대수
+        ,BILDNG_60_85_CO = construction.BILDNG_60_85_CO # 60이상 85이하 건설세대수
+        ,BILDNG_85_CO = construction.BILDNG_85_CO # 85초과 건설세대수
+        ,BILDNG_RM = construction.BILDNG_RM #건축계획비고
+        ,LOCIMG01 = construction.LOCIMG01 #위치도
+        ,LOCIMG02 = construction.LOCIMG02 #조감도
+        ,LOCIMG03 = construction.LOCIMG03 #배치도
+    )
+    session.add(db_construction)
+    session.commit()
+    session.refresh(db_construction)
+    return db_construction
 
 
 

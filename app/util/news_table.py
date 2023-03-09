@@ -9,7 +9,9 @@ from util.keyword_extractor import TextRankExtractor
 class NewsAPITable():
     def __init__(self,keyword):
         self.client_id = settings.NEWS_CLIENT_ID
+        # self.client_id = 'OsLOua238f8IXy9nanMl'
         self.client_secret = settings.NEWS_CLIENT_PW
+        # self.client_secret = 'GTaGmO7nii'
         self.display_num = 100 # 1~100사이의 값
         self.url = 'https://openapi.naver.com/v1/search/news.json'
         self.keyword = keyword
