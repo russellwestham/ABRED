@@ -136,65 +136,58 @@ async def read_news(news_id: int):
     return news
 # # 새로운 news 추가하기
 
-
-# @app.post("/news/{construction_id}")
-# async def create_news_except_keywords(construction_id: str):
-#     # construction id 찾기
-#     construction = session.query(ConstructionTable).filter(ConstructionTable.id == construction_id).first()
-#     table = news_table.NewsAPITable(construction.CAFE_NM)
-#     df = table.get_data()
-#     for i, row in df.iterrows():
-#         db_News = NewsTable(
-#         construction_id = construction.id
-#         # Newstable의 항목들 채우기
-#         ,thumnl_url = row['thumnl_url']
-#         ,url = row['url']
-#         ,title = row['title']
-#         ,description = row['description']
-#         ,keywords = row['keywords']
-#         ,pubdate = row['pubDate']
-#         ,ks_graph = row['ks_graph']
-#         ,media = row['media']
-#         ,keywords = ''
-#         )
-#         session.add(db_news)
-#         session.commit()
-#         session.refresh(db_news)
-#         return db_news
+# news를 db에 저장하는 api
+@app.post("/news")
+async def create_news_except_keywords(news: News):
+    db_news = NewsTable(
+    construction_id = news.construction_id
+    # Newstable의 항목들 채우기
+    ,thumnl_url =news.thumnl_url
+    ,url = news.url
+    ,title =news.title
+    ,description =news.description
+    ,keywords =news.keywords
+    ,pubdate =news.pubdate
+    ,ks_graph =news.ks_graph
+    ,media =news.media
+    )
+    session.add(db_news)
+    session.commit()
+    session.refresh(db_news)
+    return db_news
 # news의 키워드 업데이트
 @app.post("/news/{construction_id}")
-async def create_news_except_keywords(construction_id: str):
-    # construction id 찾기
+async def create_newses(construction_id: int):
+    # construction id통해서 construction 찾기
     construction = session.query(ConstructionTable).filter(ConstructionTable.id == construction_id).first()
-    news_list = session.query(NewsTable).filter(NewsTable.id == construction_id).all()
-    
     table = news_table.NewsAPITable(construction.CAFE_NM)
     df = table.get_data()
+    print(construction.CAFE_NM, df)
+    news_list = []
     for i, row in df.iterrows():
-        db_News = NewsTable(
-        construction_id = construction.id
-        # Newstable의 항목들 채우기
-        ,thumnl_url = row['thumnl_url']
-        ,url = row['url']
-        ,title = row['title']
-        ,description = row['description']
-        ,keywords = row['keywords']
-        ,pubdate = row['pubDate']
-        ,ks_graph = row['ks_graph']
-        ,media = row['media']
+        news = News(
+            # Newstable의 항목들 채우기
+            construction_id = construction_id
+            ,thumnl_url =row['thumnl_url']
+            ,url = row['url']
+            ,title =row['title']
+            ,description =row['description']
+            ,keywords =row['keywords']
+            ,pubdate =row['pubDate']
+            ,ks_graph =row['ks_graph']
+            ,media =row['media']
         )
-        session.add(db_news)
-        session.commit()
-        session.refresh(db_news)
-        return db_news
-
+        news_list.append(news)
+    print(news_list)
+    for news in news_list :
+        create_news_except_keywords(news)
 # news 내용 변경하기
 @app.put("/news")
 async def update_news(newslist: List[News]):
     for new_news in newslist:
         news = session.query(NewsTable).\
             filter(NewsTable.id == new_news.id).first()
-        news.const_id = new_news.const_id
+        news.construction_id = new_news.construction_id
         news.thumnl_url = new_news.thumnl_url
         news.url = new_news.url
         news.title = new_news.title
@@ -205,21 +198,20 @@ async def update_news(newslist: List[News]):
 
 # 뉴스 키워드 추가하기.
 @app.put("/news/{construction_id}")
-async def add_news_keywords(construction_id: str):
+async def add_news_keywords(construction_id: int):
     # 뉴스가 속해있는 사업 데이터 가져오기
-    construction = session.query(ConstructionTable).filter(ConstructionTable.id == construction_id).first()
+    # construction = session.query(ConstructionTable).filter(ConstructionTable.id == construction_id).first()
     # 각 사업에 해당하는 뉴스들 가져오기
-    news_list = session.query(NewsTable).filter(NewsTable.id == construction_id).all()
+    news_list = session.query(NewsTable).filter(NewsTable.construction_id == construction_id).all()
     # get_news_keywords를 사용하기 위한 준비 과정
     df_news = pd.DataFrame(columns = ['id','keywords'])
-    for i in range(newslist):
+    for i in range(len(news_list)):
         news_tbl = session.query(NewsTable).filter(NewsTable.id == news_list[i].id).first()
-        df_news['id'].iloc[i] = news_tbl.id
-        df_news['keywords'].iloc[i] = news_tbl.keywords
+        df_news.loc[i] = [news_tbl.id, news_tbl.keywords]
     # 각 뉴스별 키워드 추출
     df_news['keywords'] = get_news_keywords(df_news)
     # DB에 적제
-    for i in range(newslist):
+    for i in range(len(news_list)):
         news_tbl = session.query(NewsTable).filter(NewsTable.id == news_list[i].id).first()
         news_tbl.keywords = df_news['keywords'].iloc[i]
         session.add(news_tbl)

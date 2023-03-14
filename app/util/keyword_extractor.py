@@ -16,7 +16,7 @@ from summa import keywords
 from db import session
 from model import ConstructionTable
 from util.news_table import NewsAPITable
-import util.dump_construction_tbl
+import util.dump_construction_tbl as dump_construction_tbl
 from fastapi import HTTPException
 
 

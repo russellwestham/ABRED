@@ -19,6 +19,7 @@ def get_data():
     service_key = os.getenv("CONSTRUCTION_SERVICE_KEY")
     start_index = 1
     end_index = 3
+    # end_index = 1000
     # df 기본 구조
     df_total = pd.DataFrame(columns=['BSNS_PK','GU_NM','BJDON_NM','BTYP_NM','STEP_SE_NM','CAFE_NM','REPRSNT_JIBUN','PROGRS_STTUS','CAFE_STTUS'
     ,'ZONE_NM','ZONE_ADRES','ZONE_AR','TOTAR','CTY_PLAN_SPFC_NM','CTY_PLAN_SPCFC_NM','LAD_BLDLND_AR','LAD_ROAD_AR','LAD_PARK_AR','LAD_GREENS_AR'
@@ -66,8 +67,8 @@ def update_JeongBiSaeop_data(df_total):
     # df에서 각 row별로 construction 별로 뽑아내기
     for i, row in df_total.iterrows():
         construction = Construction(
-            id = i
-            ,gis_data = ''
+            # id = i
+            gis_data = ''
             ,pyeong_cost = 0
             ,donation_land_ratio = 0.0
             ,keywords = ''

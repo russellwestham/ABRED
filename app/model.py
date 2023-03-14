@@ -80,7 +80,7 @@ class ConstructionTable(Base):
 
 
 class Construction(BaseModel):
-    id: int
+    id: Optional[int]
     gis_data: Optional[str]
     keywords: Optional[str]
     pyeong_cost: Optional[int]
@@ -135,7 +135,7 @@ class NewsTable(Base):
     url = Column(String(100), nullable=False)
     title = Column(String(100), nullable=False)
     description = Column(String(500), nullable=False)
-    keywords = Column(String(50), nullable=True)
+    keywords = Column(String(1000), nullable=True)
     ks_graph = Column(String(50), nullable=True)
     pubdate = Column(String(50), nullable=True)
     media = Column(String(50), nullable=True)
@@ -143,7 +143,7 @@ class NewsTable(Base):
 
 
 class News(BaseModel):
-    id : int
+    id : Optional[int]
     construction_id : int
     thumnl_url : str
     url : str
@@ -152,7 +152,7 @@ class News(BaseModel):
     pubdate : str
     keywords : str
     media :str
-    # ks_graph = Column(String(50), nullable=True)
+    ks_graph : Optional[str]
 
 
 # Lot Price table

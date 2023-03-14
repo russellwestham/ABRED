@@ -69,7 +69,7 @@ def upgrade() -> None:
     sa.Column('url', sa.String(length=100), nullable=False),
     sa.Column('title', sa.String(length=100), nullable=False),
     sa.Column('description', sa.String(length=500), nullable=False),
-    sa.Column('keywords', sa.String(length=50), nullable=True),
+    sa.Column('keywords', sa.String(length=1000), nullable=True),
     sa.Column('ks_graph', sa.String(length=50), nullable=True),
     sa.Column('pubdate', sa.String(length=50), nullable=True),
     sa.Column('media', sa.String(length=50), nullable=True),
