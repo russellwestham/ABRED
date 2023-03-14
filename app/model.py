@@ -36,7 +36,7 @@ class ConstructionTable(Base):
         back_populates="construction")
     sale_informations: Mapped[List["SaleInfoTable"]] = relationship(
         back_populates="construction")
-    gis_data = Column(String(50), nullable=False)
+    gis_data = Column(String(50), nullable=True)
     keywords = Column(String(100), nullable=True)
     pyeong_cost = Column(Integer, nullable=True)
     donation_land_ratio = Column(Float, nullable=True)
@@ -80,7 +80,7 @@ class ConstructionTable(Base):
 
 
 class Construction(BaseModel):
-    id: Optional[int]
+    id: int
     gis_data: Optional[str]
     keywords: Optional[str]
     pyeong_cost: Optional[int]

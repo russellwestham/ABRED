@@ -2,16 +2,15 @@ import requests
 import pandas as pd
 from urllib.parse import urlparse
 from config import settings
-from util.keyword_extractor import TextRankExtractor
+# from util.keyword_extractor import get_news_keywords
+# from util.keyword_extractor import TextRankExtractor
                                 # ,KeyBertExtractor, TFIDFExtractor, TopicRankExtractor, KeyBertEmbeddingExtractor
 # import knowledge_graph as kg
 # 기본적인 환경 설정
 class NewsAPITable():
     def __init__(self,keyword):
         self.client_id = settings.NEWS_CLIENT_ID
-        # self.client_id = 'OsLOua238f8IXy9nanMl'
         self.client_secret = settings.NEWS_CLIENT_PW
-        # self.client_secret = 'GTaGmO7nii'
         self.display_num = 100 # 1~100사이의 값
         self.url = 'https://openapi.naver.com/v1/search/news.json'
         self.keyword = keyword
@@ -35,46 +34,10 @@ class NewsAPITable():
         df = df.rename(columns = {'originallink' : 'url'}) #url로 바꿔주기
         df['thumnl_url'] = ''
         df['keywords'] = (df['title'] + ' ' + df['description']).str.replace('(&quot|<b>|</b>|&apos|;)','', regex= True)
-        df['keywords'] = self.extract_keywords(df)
+        # df['keywords'] = get_news_keywords(df)
         df['ks_graph'] = ''
         df = self.media_screening(df)
         return df
-
-    def merge_news(self, df):
-        # 뉴스 데이터가 없는 경우 빈 df로 return
-        if len(df) == 0 :
-            return df
-        # 뉴스 데이터가 있는 경우 
-        docs = ''
-        for i,row in df.iterrows():
-            docs += row['keywords']
-        df_docs = pd.DataFrame({'keywords' : [docs]})
-        return df_docs
-
-    def extract_keywords(self,df):
-        # 뉴스 데이터가 없는 경우 빈 df로 return
-        if len(df) ==0 :
-            return df
-        # 뉴스 데이터가 있는 경우
-        keyword_extractors = {
-        'text_rank' : TextRankExtractor,
-        # 'tfidf' : TFIDFExtractor,
-        # 'topic_rank' : TopicRankExtractor,
-        # 'keybert' : KeyBertExtractor,
-        }
-
-
-        for keyword_extraction_method in [
-        # 'tfidf',
-        # 'keybert',
-        'text_rank',
-        # 'topic_rank'
-        ]:
-            keyword_extractor_class = keyword_extractors.get(keyword_extraction_method)
-            keyword_extractor = keyword_extractor_class(df['keywords'], n_gram_range=(1,1))
-            keywords = keyword_extractor.extract_keywords(top_n=self.TOP_K)
-
-        return keywords['keywords']
 
     def media_screening(self,df):
         media_list = [
