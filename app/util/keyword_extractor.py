@@ -7,17 +7,12 @@ import pandas as pd
 import numpy as np
 
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
-# from sklearn.metrics.pairwise import cosine_similarity
-# from sentence_transformers import SentenceTransformer
-# from util.topicrank import TopicRank
 from tqdm import tqdm
 from summa import keywords
 
 from db import session
 from model import ConstructionTable
 from util.news_table import NewsAPITable
-import util.dump_construction_tbl as dump_construction_tbl
-from fastapi import HTTPException
 
 
 class KeywordExtractor:
@@ -208,38 +203,32 @@ def get_news_keywords(df_news):
         keywords = keyword_extractor.extract_keywords(top_n=TOP_K)
 
     return keywords['keywords']
-def get_construction_keywords(df):
-    for i,row in df.iterrows():
-        # 재개발 사업 별 keywords 구하기
-        newsTable = NewsAPITable(row['CAFE_NM'])
-        df_news = newsTable.get_data()
-        # 뉴스 데이터가 없는 경우 빈 df로 return
-        if len(df_news) == 0 :
-            row['keywords'] = ''
-        # 뉴스 데이터가 있는 경우 
-        else :
-            docs = ''
-            for j,row2 in df_news.iterrows():
-                docs += row2['keywords'] #여기서의 keywords는 위의 keywords랑 다르게 뉴스의 본문과 제목을 가지고 있음
-            df_docs = pd.DataFrame({'keywords' : [docs]})
+def get_construction_keywords(cafe_nm):
+    # 재개발 사업 별 keywords 구하기
+    newsTable = NewsAPITable(cafe_nm)
+    df_news = newsTable.get_data()
+    # 뉴스 데이터가 없는 경우 빈 df로 return
+    if len(df_news) == 0 :
+        return ''
+    # 뉴스 데이터가 있는 경우 
+    else :
+        docs = ''
+        for j,row2 in df_news.iterrows():
+            docs += row2['keywords'] #여기서의 keywords는 위의 keywords랑 다르게 뉴스의 본문과 제목을 가지고 있음
+        df_docs = pd.DataFrame({'keywords' : [docs]})
 
-            if len(df_docs) !=0:
-                row['keywords'] = get_news_keywords(df_docs).iloc[0]
-                # print(get_news_keywords(df_docs).iloc[0])
-            else :
-                row['keywords'] = ''
-    return df
-def store_const_keywords_DB(df):
-    for i,row in df.iterrows():
-        construction = session.query(ConstructionTable).filter(ConstructionTable.CAFE_NM == row['CAFE_NM']).first()
-        if not construction:
-            raise HTTPException(status_code=404, detail="Construction not found")
-        construction.keywords = row['keywords']
+        if len(df_docs) !=0:
+            return get_news_keywords(df_docs).iloc[0]
+        else :
+            return ''
+def store_const_keywords_DB():
+    construction_list = session.query(ConstructionTable).filter(ConstructionTable.keywords == '').all()
+    for construction in construction_list:
+        cafe_nm = construction.CAFE_NM
+        construction.keywords = get_construction_keywords(cafe_nm)
         session.commit()
         session.refresh(construction)
 
 
 if __name__ == '__main__':
-    df_total = dump_construction_tbl.get_data()
-    df = get_construction_keywords(df_total)
-    store_const_keywords_DB(df)
+    store_const_keywords_DB()

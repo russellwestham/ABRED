@@ -8,6 +8,7 @@ from model import create_tbl, ConstructionTable, Construction, NewsTable, News, 
 from util.const_stats import update_stats
 from util.keyword_extractor import get_news_keywords
 import util.news_table as news_table
+from util.dump_construction_tbl import construction_into_tbl
 
 
 app = FastAPI()
@@ -39,48 +40,7 @@ async def read_construction(id: int):
 # 단일 새로운 construction 추가하기
 @app.post("/construction")
 async def create_construction(construction : Construction):
-    db_construction = ConstructionTable(
-        gis_data = construction.gis_data
-        ,pyeong_cost = construction.pyeong_cost
-        ,donation_land_ratio = construction.donation_land_ratio
-
-        ,BSNS_PK = construction.BSNS_PK #사업번호
-        ,GU_NM = construction.GU_NM #자치구 이름
-        ,BJDON_NM = construction.BJDON_NM #법정동
-        ,BTYP_NM = construction.BTYP_NM #사업구분
-        ,STEP_SE_NM = construction.STEP_SE_NM #운영구분
-        ,CAFE_NM = construction.CAFE_NM #추진위원회/조합명
-        ,REPRSNT_JIBUN = construction.REPRSNT_JIBUN #대표지번
-        ,PROGRS_STTUS = construction.PROGRS_STTUS #진행단계
-        ,CAFE_STTUS = construction.CAFE_STTUS #상태
-        ,ZONE_NM = construction.ZONE_NM #정비구역명칭
-        ,ZONE_ADRES = construction.ZONE_ADRES #정비구역위치
-        ,ZONE_AR = construction.ZONE_AR #정비구역면적
-        ,TOTAR = construction.TOTAR # 건축연면적
-        ,CTY_PLAN_SPFC_NM = construction.CTY_PLAN_SPFC_NM # 용도지역
-        ,CTY_PLAN_SPCFC_NM = construction.CTY_PLAN_SPCFC_NM #용도지구
-        ,LAD_BLDLND_AR = construction.LAD_BLDLND_AR #택지면적
-        ,LAD_PBSPCE_AR = construction.LAD_PBSPCE_AR #공공면적
-        ,LAD_ROAD_AR = construction.LAD_ROAD_AR # 도로면적
-        ,LAD_PARK_AR = construction.LAD_PARK_AR #공원면적
-        ,LAD_GREENS_AR = construction.LAD_GREENS_AR #녹지면적
-        ,LAD_SCHUL_AR = construction.LAD_SCHUL_AR #학교면적
-        ,LAD_ETC_AR = construction.LAD_ETC_AR #기타면적
-        ,BILDNG_PRPOS_NM = construction.BILDNG_PRPOS_NM #주용도
-        ,BILDNG_BDTLDR = construction.BILDNG_BDTLDR # 건폐율
-        ,BILDNG_FLRSPCER = construction.BILDNG_FLRSPCER # 용적률
-        ,BILDNG_HG =construction.BILDNG_HG # 높이
-        ,BILDNG_GROUND_FLOOR_CO = construction.BILDNG_GROUND_FLOOR_CO # 지상층수 
-        ,BILDNG_UNDGRND_FLOOR_CO = construction.BILDNG_UNDGRND_FLOOR_CO # 지하층수
-        ,SUM_BILDNG_CO = construction.SUM_BILDNG_CO # 건설세대총수
-        ,BILDNG_60_CO = construction.BILDNG_60_CO # 60미만 건설세대수
-        ,BILDNG_60_85_CO = construction.BILDNG_60_85_CO # 60이상 85이하 건설세대수
-        ,BILDNG_85_CO = construction.BILDNG_85_CO # 85초과 건설세대수
-        ,BILDNG_RM = construction.BILDNG_RM #건축계획비고
-        ,LOCIMG01 = construction.LOCIMG01 #위치도
-        ,LOCIMG02 = construction.LOCIMG02 #조감도
-        ,LOCIMG03 = construction.LOCIMG03 #배치도
-    )
+    db_construction = construction_into_tbl(construction)
     session.add(db_construction)
     session.commit()
     session.refresh(db_construction)
@@ -199,8 +159,6 @@ async def update_news(newslist: List[News]):
 # 뉴스 키워드 추가하기.
 @app.put("/news/{construction_id}")
 async def add_news_keywords(construction_id: int):
-    # 뉴스가 속해있는 사업 데이터 가져오기
-    # construction = session.query(ConstructionTable).filter(ConstructionTable.id == construction_id).first()
     # 각 사업에 해당하는 뉴스들 가져오기
     news_list = session.query(NewsTable).filter(NewsTable.construction_id == construction_id).all()
     # get_news_keywords를 사용하기 위한 준비 과정
