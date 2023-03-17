@@ -2,4 +2,4 @@ up:
 	@docker-compose down
 	@docker-compose up --build fastapi 
 reload:
-	@docker-compos up --build fastapi
+	@docker-compose up --build fastapi

@@ -3,12 +3,11 @@ from fastapi import FastAPI,HTTPException
 from typing import List
 from starlette.middleware.cors import CORSMiddleware
 from db import session
-from config import settings
-from model import create_tbl, ConstructionTable, Construction, NewsTable, News, LotTable, Lot, ConstructionStatTable, PrePriceSimulTable, PrePriceSimul, PostPriceSimulTable, PostPriceSimul, SaleInfoTable, SaleInfo
+from model import ConstructionTable, Construction, NewsTable, News, LotTable, Lot, ConstructionStatTable, PrePriceSimulTable, PrePriceSimul, PostPriceSimulTable, PostPriceSimul, SaleInfoTable, SaleInfo
 from util.const_stats import update_stats
 from util.keyword_extractor import get_news_keywords
-import util.news_table as news_table
-from util.dump_construction_tbl import construction_into_tbl
+from util.news_table import NewsData
+from util.dump_construction_tbl import transform_pydantic_into_tbl
 
 
 app = FastAPI()
@@ -23,13 +22,10 @@ app.add_middleware(
 )
 
 # ----------Constuction APIs------------
-# 전체 construction 정보 가져오기
 @app.get("/constructions")
 async def read_constructions():
     constructions = session.query(ConstructionTable).all()
     return constructions
-# 특정 construction 정보 가져오기
-
 
 @app.get("/construction/{id}")
 async def read_construction(id: int):
@@ -37,18 +33,14 @@ async def read_construction(id: int):
         filter(ConstructionTable.id == id).first()
     return construction
 
-# 단일 새로운 construction 추가하기
 @app.post("/construction")
 async def create_construction(construction : Construction):
-    db_construction = construction_into_tbl(construction)
+    db_construction = transform_pydantic_into_tbl(construction)
     session.add(db_construction)
     session.commit()
     session.refresh(db_construction)
     return db_construction
 
-
-
-# consturction 내용 변경하기
 @app.put("/construction")
 async def update_construction(constructions: List[Construction]):
     for new_construction in constructions:
@@ -61,8 +53,6 @@ async def update_construction(constructions: List[Construction]):
         construction.gis_data = new_construction.gis_data
         construction.keywords = new_construction.keywords
         session.commit()
-# construction 내용 삭제하기.
-
 
 @app.delete("/construction/{construction_id}")
 async def delete_construction(constructions: List[Construction], construction_id):
@@ -74,59 +64,34 @@ async def delete_construction(constructions: List[Construction], construction_id
         session.delete(construction)
         session.commit()
 
-
 # ----------News APIs------------
-# 전체 news 정보 가져오기
-# @app.lib.run()
-# @app.lib.cron()
-# @app.put("/news_update")
-
-
 @app.get("/news")
-async def read_newses():
+async def read_news():
     news = session.query(NewsTable).all()
     return news
-# # 특정 news 정보 가져오기
-
 
 @app.get("/news/{news_id}")
-async def read_news(news_id: int):
+async def read_one_news(news_id: int):
     news = session.query(NewsTable).\
         filter(NewsTable.id == news_id).first()
     return news
-# # 새로운 news 추가하기
 
-# news를 db에 저장하는 api
 @app.post("/news")
-async def create_news_except_keywords(news: News):
-    db_news = NewsTable(
-    construction_id = news.construction_id
-    # Newstable의 항목들 채우기
-    ,thumnl_url =news.thumnl_url
-    ,url = news.url
-    ,title =news.title
-    ,description =news.description
-    ,keywords =news.keywords
-    ,pubdate =news.pubdate
-    ,ks_graph =news.ks_graph
-    ,media =news.media
-    )
-    session.add(db_news)
-    session.commit()
-    session.refresh(db_news)
-    return db_news
-# news의 키워드 업데이트
+async def create_all_news():
+    construction_list = session.query(ConstructionTable).all()
+    for construction in construction_list :
+        await create_news_of_construction(construction.id)
+
+
+
 @app.post("/news/{construction_id}")
-async def create_newses(construction_id: int):
-    # construction id통해서 construction 찾기
+async def create_news_of_construction(construction_id: int):
     construction = session.query(ConstructionTable).filter(ConstructionTable.id == construction_id).first()
-    table = news_table.NewsAPITable(construction.CAFE_NM)
-    df = table.get_data()
-    print(construction.CAFE_NM, df)
+    news_data = NewsData(construction.CAFE_NM)
+    df = news_data.get_data()
     news_list = []
     for i, row in df.iterrows():
         news = News(
-            # Newstable의 항목들 채우기
             construction_id = construction_id
             ,thumnl_url =row['thumnl_url']
             ,url = row['url']
@@ -138,45 +103,67 @@ async def create_newses(construction_id: int):
             ,media =row['media']
         )
         news_list.append(news)
-    print(news_list)
     for news in news_list :
-        create_news_except_keywords(news)
-# news 내용 변경하기
-@app.put("/news")
-async def update_news(newslist: List[News]):
-    for new_news in newslist:
-        news = session.query(NewsTable).\
-            filter(NewsTable.id == new_news.id).first()
-        news.construction_id = new_news.construction_id
-        news.thumnl_url = new_news.thumnl_url
-        news.url = new_news.url
-        news.title = new_news.title
-        news.description = new_news.description
-        news.pubdate = new_news.pubdate
-        news.media = new_news.media
+        db_news = NewsTable(
+        construction_id = news.construction_id
+        ,thumnl_url =news.thumnl_url
+        ,url = news.url
+        ,title =news.title
+        ,description =news.description
+        ,keywords =news.keywords
+        ,pubdate =news.pubdate
+        ,ks_graph =news.ks_graph
+        ,media =news.media
+        )
+        session.add(db_news)
         session.commit()
+        session.refresh(db_news)
+    # await asyncio.sleep(3)
+    
+
+
+# news 내용 변경하기
+# @app.put("/news")
+# async def update_news(newslist: List[News]):
+#     for new_news in newslist:
+#         news = session.query(NewsTable).\
+#             filter(NewsTable.id == new_news.id).first()
+#         news.construction_id = new_news.construction_id
+#         news.thumnl_url = new_news.thumnl_url
+#         news.url = new_news.url
+#         news.title = new_news.title
+#         news.description = new_news.description
+#         news.pubdate = new_news.pubdate
+#         news.media = new_news.media
+#         news.keywords = new_news.keywords
+#         session.commit()
+# 모든 사업의 뉴스 키워드 추가하기.
+@app.put("/news")
+async def add_all_news_keywords():
+    construction_list = session.query(ConstructionTable).all()
+    for construction in construction_list :
+        await add_news_keywords(construction.id)
 
 # 뉴스 키워드 추가하기.
 @app.put("/news/{construction_id}")
 async def add_news_keywords(construction_id: int):
-    # 각 사업에 해당하는 뉴스들 가져오기
     news_list = session.query(NewsTable).filter(NewsTable.construction_id == construction_id).all()
-    # get_news_keywords를 사용하기 위한 준비 과정
+    if len(news_list) ==0 :
+        return
+    # get_news_keywords를 불러오기 위한 데이터 세팅
     df_news = pd.DataFrame(columns = ['id','keywords'])
     for i in range(len(news_list)):
         news_tbl = session.query(NewsTable).filter(NewsTable.id == news_list[i].id).first()
         df_news.loc[i] = [news_tbl.id, news_tbl.keywords]
-    # 각 뉴스별 키워드 추출
+
     df_news['keywords'] = get_news_keywords(df_news)
-    # DB에 적제
+    # DB에 적재
     for i in range(len(news_list)):
         news_tbl = session.query(NewsTable).filter(NewsTable.id == news_list[i].id).first()
         news_tbl.keywords = df_news['keywords'].iloc[i]
         session.add(news_tbl)
         session.commit()
         session.refresh(news_tbl)
-# # news 내용 삭제하기.
-
 
 @app.delete("/news/{news_id}")
 async def delete_news(newslist: List[News], news_id):
@@ -187,10 +174,6 @@ async def delete_news(newslist: List[News], news_id):
             filter(NewsTable.id == new_news.id).first()
         session.delete(news)
         session.commit()
-# news 새로고침 하기
-
-
-
 
 # ----------Lots APIs------------
 # Lot CRUD APIs

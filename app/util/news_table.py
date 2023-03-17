@@ -2,39 +2,32 @@ import requests
 import pandas as pd
 from urllib.parse import urlparse
 from config import settings
-# from util.keyword_extractor import get_news_keywords
-# from util.keyword_extractor import TextRankExtractor
-                                # ,KeyBertExtractor, TFIDFExtractor, TopicRankExtractor, KeyBertEmbeddingExtractor
-# import knowledge_graph as kg
-# 기본적인 환경 설정
-class NewsAPITable():
-    def __init__(self,keyword):
+
+class NewsData():
+    def __init__(self,search_word):
         self.client_id = settings.NEWS_CLIENT_ID
         self.client_secret = settings.NEWS_CLIENT_PW
         self.display_num = 100 # 1~100사이의 값
         self.url = 'https://openapi.naver.com/v1/search/news.json'
-        self.keyword = keyword
+        self.search_word = search_word
         self.TOP_K = 10
-    # 주어진 construction_id 바탕으로 네이버 뉴스 api 이용해서 뉴스 데이터 수집 
+
     def get_data(self):
         headers = {'X-Naver-Client-Id':self.client_id, 'X-Naver-Client-Secret':self.client_secret}
-        params = {'query':self.keyword, 'display':self.display_num, 'start':1, 'sort':'date'}
+        params = {'query':self.search_word, 'display':self.display_num, 'start':1, 'sort':'date'}
         response = requests.get(self.url, params = params, headers = headers)
         json = response.json()
 
         newslist = json['items']
 
         df = pd.DataFrame(newslist)
-        # 뉴스 데이터가 없는 경우 빈 df로 return
         if len(df) == 0 :
             return df
-
-        # db에 적재되는 형태랑 같도록 수정
+        # DB schema에 맞게 수정.
         df = df.drop('link', axis = 1) # 중복되는 link 삭제
         df = df.rename(columns = {'originallink' : 'url'}) #url로 바꿔주기
         df['thumnl_url'] = ''
         df['keywords'] = (df['title'] + ' ' + df['description']).str.replace('(&quot|<b>|</b>|&apos|;)','', regex= True)
-        # df['keywords'] = get_news_keywords(df)
         df['ks_graph'] = ''
         df = self.media_screening(df)
         return df

@@ -1,8 +1,6 @@
 import os
 import sys
-import asyncio
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-# sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))))
 import xml.etree.ElementTree as ET
 from urllib.request import urlopen
 import requests
@@ -12,10 +10,9 @@ from model import ConstructionTable, Construction
 from db import session
 
 def get_data():
-    service_key = os.getenv("CONSTRUCTION_SERVICE_KEY")
+    service_key = settings.CONSTRUCTION_SERVICE_KEY
     start_index = 1
-    end_index = 1000
-    # df 기본 구조
+    end_index = 10
     df_total = pd.DataFrame(columns=['BSNS_PK','GU_NM','BJDON_NM','BTYP_NM','STEP_SE_NM','CAFE_NM','REPRSNT_JIBUN','PROGRS_STTUS','CAFE_STTUS'
     ,'ZONE_NM','ZONE_ADRES','ZONE_AR','TOTAR','CTY_PLAN_SPFC_NM','CTY_PLAN_SPCFC_NM','LAD_BLDLND_AR','LAD_ROAD_AR','LAD_PARK_AR','LAD_GREENS_AR'
     ,'LAD_PBSPCE_AR','LAD_SCHUL_AR','LAD_ETC_AR','BILDNG_PRPOS_NM','BILDNG_BDTLDR','BILDNG_FLRSPCER','BILDNG_HG','BILDNG_GROUND_FLOOR_CO'
@@ -27,7 +24,6 @@ def get_data():
     for GU_NM in GU_list:
         url = f"http://openAPI.seoul.go.kr:8088/{service_key}/xml/CleanupBussinessInfo/{start_index}/{end_index}/{GU_NM}"
         # url = f"http://openAPI.seoul.go.kr:8088/{service_key}/xml/CleanupBussinessInfo/{start_index}/{end_index}/{GU_NM}/{BJDON_NM}"
-
         content = requests.get(url).content
         root = ET.fromstring(content)
 
@@ -46,7 +42,7 @@ def get_data():
         df_total['keywords'] = ''
     df_total = df_total.reset_index(drop = True)
     return df_total
-def update_JeongBiSaeop_data(df_total):
+def transform_data_into_pydantic(df_total):
     construction_list = []
     # df에서 각 row별로 construction 별로 뽑아내기
     for i, row in df_total.iterrows():
@@ -95,7 +91,7 @@ def update_JeongBiSaeop_data(df_total):
         )
         construction_list.append(construction)
     return construction_list
-def pydntic_cnstrctn_into_tbl(construction):
+def transform_pydantic_into_tbl(construction):
     db_construction = ConstructionTable(
         gis_data = construction.gis_data
         ,pyeong_cost = construction.pyeong_cost
@@ -142,9 +138,9 @@ def pydntic_cnstrctn_into_tbl(construction):
 
 def store_in_db():
     df_total = get_data()
-    construction_list = update_JeongBiSaeop_data(df_total)
+    construction_list = transform_data_into_pydantic(df_total)
     for construction in construction_list:
-        db_construction = construction_into_tbl(construction)
+        db_construction = transform_pydantic_into_tbl(construction)
         session.add(db_construction)
         session.commit()
         session.refresh(db_construction)

@@ -132,7 +132,7 @@ class NewsTable(Base):
     construction_id: Mapped[int] = mapped_column(ForeignKey("Construction.id"))
     construction: Mapped["ConstructionTable"] = relationship(back_populates="news")
     thumnl_url = Column(String(50), nullable=False)
-    url = Column(String(100), nullable=False)
+    url = Column(String(200), nullable=False)
     title = Column(String(100), nullable=False)
     description = Column(String(500), nullable=False)
     keywords = Column(String(1000), nullable=True)

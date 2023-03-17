@@ -11,8 +11,7 @@ from tqdm import tqdm
 from summa import keywords
 
 from db import session
-from model import ConstructionTable
-from util.news_table import NewsAPITable
+from model import ConstructionTable, NewsTable
 
 
 class KeywordExtractor:
@@ -181,10 +180,8 @@ class TextRankExtractor(KeywordExtractor):
 
 TOP_K = 5
 def get_news_keywords(df_news):
-    # 뉴스 데이터가 없는 경우 빈 df로 return
     if len(df_news) ==0 :
         return df_news
-    # 뉴스 데이터가 있는 경우
     keyword_extractors = {
     'text_rank' : TextRankExtractor,
     # 'tfidf' : TFIDFExtractor,
@@ -203,32 +200,29 @@ def get_news_keywords(df_news):
         keywords = keyword_extractor.extract_keywords(top_n=TOP_K)
 
     return keywords['keywords']
-def get_construction_keywords(cafe_nm):
-    # 재개발 사업 별 keywords 구하기
-    newsTable = NewsAPITable(cafe_nm)
-    df_news = newsTable.get_data()
-    # 뉴스 데이터가 없는 경우 빈 df로 return
-    if len(df_news) == 0 :
-        return ''
-    # 뉴스 데이터가 있는 경우 
+def get_construction_keywords(db_construction):
+    news_list = session.query(NewsTable).filter(NewsTable.construction_id == db_construction.id).all()
+    if len(news_list) == 0 :
+        return None
+    docs = ''
+    for news in news_list:
+        docs += news.keywords
+    df_docs = pd.DataFrame({'keywords' : [docs]})
+    if len(df_docs) !=0:
+        return get_news_keywords(df_docs).iloc[0]
     else :
-        docs = ''
-        for j,row2 in df_news.iterrows():
-            docs += row2['keywords'] #여기서의 keywords는 위의 keywords랑 다르게 뉴스의 본문과 제목을 가지고 있음
-        df_docs = pd.DataFrame({'keywords' : [docs]})
-
-        if len(df_docs) !=0:
-            return get_news_keywords(df_docs).iloc[0]
-        else :
-            return ''
-def store_const_keywords_DB():
-    construction_list = session.query(ConstructionTable).filter(ConstructionTable.keywords == '').all()
+        return None
+def store_const_keywords_in_DB():
+    construction_list = session.query(ConstructionTable).filter(ConstructionTable.keywords == "").all()
+    # construction_list = session.query(ConstructionTable).all()
     for construction in construction_list:
-        cafe_nm = construction.CAFE_NM
-        construction.keywords = get_construction_keywords(cafe_nm)
+        db_construction = session.query(ConstructionTable).filter(ConstructionTable.id == construction.id).first()
+        db_construction.keywords = get_construction_keywords(db_construction)
+        session.add(db_construction)
         session.commit()
-        session.refresh(construction)
+        session.refresh(db_construction)
 
 
 if __name__ == '__main__':
-    store_const_keywords_DB()
+    store_const_keywords_in_DB()
+    
