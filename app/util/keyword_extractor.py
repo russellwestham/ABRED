@@ -180,6 +180,9 @@ class TextRankExtractor(KeywordExtractor):
 
 TOP_K = 5
 def get_news_keywords(df_news):
+    '''
+    뉴스 데이터들의 키워드를 추출하는 함수
+    '''
     if len(df_news) ==0 :
         return df_news
     keyword_extractors = {
@@ -201,18 +204,28 @@ def get_news_keywords(df_news):
 
     return keywords['keywords']
 def get_construction_keywords(db_construction):
+    '''
+    사업의 뉴스 데이터들을 전부 모아서 키워드를 추출하는 함수
+    '''
     news_list = session.query(NewsTable).filter(NewsTable.construction_id == db_construction.id).all()
     if len(news_list) == 0 :
         return None
-    docs = ''
+    construction_news_docs = ''
+    news_content = ''
     for news in news_list:
-        docs += news.keywords
-    df_docs = pd.DataFrame({'keywords' : [docs]})
+        news_content = (news.title + ' ' + news.description)
+        for text in ['&quot','<b>','</b>','&apos'] :
+            news_content = news_content.replace(text,'')
+        construction_news_docs += news_content
+    df_docs = pd.DataFrame({'keywords' : [construction_news_docs]})
     if len(df_docs) !=0:
         return get_news_keywords(df_docs).iloc[0]
     else :
         return None
 def store_const_keywords_in_DB():
+    '''
+    추출한 사업별 키워드를 DB에 저장하는 함수.
+    '''
     construction_list = session.query(ConstructionTable).filter(ConstructionTable.keywords == "").all()
     # construction_list = session.query(ConstructionTable).all()
     for construction in construction_list:
@@ -221,8 +234,4 @@ def store_const_keywords_in_DB():
         session.add(db_construction)
         session.commit()
         session.refresh(db_construction)
-
-
-if __name__ == '__main__':
-    store_const_keywords_in_DB()
     

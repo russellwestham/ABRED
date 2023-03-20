@@ -10,6 +10,9 @@ from model import ConstructionTable, Construction
 from db import session
 
 def get_data():
+    '''
+    서울시에서 정비사업 데이터를 가져오는 함수
+    '''
     service_key = settings.CONSTRUCTION_SERVICE_KEY
     start_index = 1
     end_index = 10
@@ -43,6 +46,9 @@ def get_data():
     df_total = df_total.reset_index(drop = True)
     return df_total
 def transform_data_into_pydantic(df_total):
+    '''
+    받아온 data를 pydantic 형태에 맞게 넣는 작업.
+    '''
     construction_list = []
     # df에서 각 row별로 construction 별로 뽑아내기
     for i, row in df_total.iterrows():
@@ -91,7 +97,10 @@ def transform_data_into_pydantic(df_total):
         )
         construction_list.append(construction)
     return construction_list
-def transform_pydantic_into_tbl(construction):
+def transform_pydantic_into_tbl(construction):    
+    '''
+    pydantic 형태에 맞게 들어온 데이터를 db schema 형태에 맞게 저장.
+    '''
     db_construction = ConstructionTable(
         gis_data = construction.gis_data
         ,pyeong_cost = construction.pyeong_cost
@@ -137,6 +146,9 @@ def transform_pydantic_into_tbl(construction):
     return db_construction
 
 def store_in_db():
+    '''
+    DB에 적재
+    '''
     df_total = get_data()
     construction_list = transform_data_into_pydantic(df_total)
     for construction in construction_list:

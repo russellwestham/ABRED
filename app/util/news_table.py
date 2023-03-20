@@ -27,7 +27,8 @@ class NewsData():
         df = df.drop('link', axis = 1) # 중복되는 link 삭제
         df = df.rename(columns = {'originallink' : 'url'}) #url로 바꿔주기
         df['thumnl_url'] = ''
-        df['keywords'] = (df['title'] + ' ' + df['description']).str.replace('(&quot|<b>|</b>|&apos|;)','', regex= True)
+        df['keywords'] = ''
+        # df['keywords'] = (df['title'] + ' ' + df['description']).str.replace('(&quot|<b>|</b>|&apos|;)','', regex= True)
         df['ks_graph'] = ''
         df = self.media_screening(df)
         return df

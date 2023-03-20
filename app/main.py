@@ -86,6 +86,9 @@ async def create_all_news():
 
 @app.post("/news/{construction_id}")
 async def create_news_of_construction(construction_id: int):
+    '''
+    DB에 저장된 사업별 뉴스 데이터들을 DB에 적재하는 api
+    '''
     construction = session.query(ConstructionTable).filter(ConstructionTable.id == construction_id).first()
     news_data = NewsData(construction.CAFE_NM)
     df = news_data.get_data()
@@ -119,23 +122,6 @@ async def create_news_of_construction(construction_id: int):
         session.commit()
         session.refresh(db_news)
     
-
-
-# news 내용 변경하기
-# @app.put("/news")
-# async def update_news(newslist: List[News]):
-#     for new_news in newslist:
-#         news = session.query(NewsTable).\
-#             filter(NewsTable.id == new_news.id).first()
-#         news.construction_id = new_news.construction_id
-#         news.thumnl_url = new_news.thumnl_url
-#         news.url = new_news.url
-#         news.title = new_news.title
-#         news.description = new_news.description
-#         news.pubdate = new_news.pubdate
-#         news.media = new_news.media
-#         news.keywords = new_news.keywords
-#         session.commit()
 # 모든 사업의 뉴스 키워드 추가하기.
 @app.put("/news")
 async def add_all_news_keywords():
@@ -146,14 +132,20 @@ async def add_all_news_keywords():
 # 뉴스 키워드 추가하기.
 @app.put("/news/{construction_id}")
 async def add_news_keywords(construction_id: int):
+    '''
+    DB에 저장된 뉴스 데이터들을 기반으로 뉴스 키워드를 추출해서 DB에 적재하는 api
+    '''
     news_list = session.query(NewsTable).filter(NewsTable.construction_id == construction_id).all()
     if len(news_list) ==0 :
         return
     # get_news_keywords를 불러오기 위한 데이터 세팅
     df_news = pd.DataFrame(columns = ['id','keywords'])
     for i in range(len(news_list)):
-        news_tbl = session.query(NewsTable).filter(NewsTable.id == news_list[i].id).first()
-        df_news.loc[i] = [news_tbl.id, news_tbl.keywords]
+        news = news_list[i]
+        news.keywords = (news.title + ' ' + news.description)
+        for text in ['&quot','<b>','</b>','&apos'] :
+            news.keywords = news.keywords.replace(text,'')
+        df_news.loc[i] = [news.id,news.keywords]
 
     df_news['keywords'] = get_news_keywords(df_news)
     # DB에 적재
