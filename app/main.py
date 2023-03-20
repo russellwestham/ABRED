@@ -118,7 +118,6 @@ async def create_news_of_construction(construction_id: int):
         session.add(db_news)
         session.commit()
         session.refresh(db_news)
-    # await asyncio.sleep(3)
     
 
 
